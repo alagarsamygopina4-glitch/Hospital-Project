@@ -2,157 +2,173 @@
 
 {% block content %}
 <style>
-    /* Full Page Background applied to body */
+    /* Full Page Background */
     body {
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)),
-            url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat fixed !important;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.85)),
+            url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat fixed !important;
         color: white;
+        overflow-x: hidden;
     }
 
-    /* Make navbar transparent with blur */
-    .navbar {
-        background-color: rgba(44, 62, 80, 0.6) !important;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Make footer transparent with blur */
-    footer {
-        background-color: rgba(33, 37, 41, 0.6) !important;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8) !important;
-        position: relative;
-        z-index: 10;
-        margin-top: 4rem !important;
-    }
-
-    .hover-transform {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .hover-transform:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4) !important;
-    }
-
-    .display-1 {
-        font-size: 4rem;
-    }
-
-    .card {
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.92);
-        /* Highly transparent white cards */
+    /* Glassmorphism Styles */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
         border: 1px solid rgba(255, 255, 255, 0.3);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        border-radius: 25px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .btn-lg {
-        padding: 12px 30px;
+    .glass-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+        background: rgba(255, 255, 255, 1);
     }
 
-    .text-muted {
-        color: #5c636a !important;
-        /* Ensure card text stays gray instead of inheriting white */
+    /* Typography Adjustments */
+    .hero-title {
+        font-size: clamp(2.5rem, 8vw, 4.5rem);
+        text-shadow: 3px 3px 15px rgba(0,0,0,0.6);
+        letter-spacing: -1px;
     }
 
-    .quick-links h5 {
-        color: white;
+    .hero-subtitle {
+        font-size: clamp(1rem, 4vw, 1.4rem);
+        opacity: 0.9;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    .quick-links p {
-        color: rgba(255, 255, 255, 0.85) !important;
+    /* Responsive Spacing */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 2.5rem 1.5rem !important;
+        }
+        .display-1 {
+            font-size: 3rem !important;
+        }
+        .container {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .mt-5 {
+            margin-top: 2rem !important;
+        }
     }
+
+    /* Icons and Buttons */
+    .icon-box {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 2.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .glass-card:hover .icon-box {
+        transform: scale(1.15) rotate(5deg);
+    }
+
+    .btn-custom {
+        padding: 14px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
 </style>
 
-<div class="container text-center mt-4 pt-5 mb-5 pb-2 text-white" style="position: relative; z-index: 2;">
-    <h1 class="display-3 fw-bold mb-3" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">Surya Hospital System</h1>
-    <p class="lead mb-0" style="font-size: 1.35rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.5);">Efficient Healthcare
-        solutions at your fingertips</p>
+<div class="container text-center mt-5 pt-4 mb-5 animate-fade-up">
+    <h1 class="hero-title fw-bold mb-3">Surya Hospital System</h1>
+    <p class="hero-subtitle lead mb-5">Digital Healthcare Solutions. Dedicated to Providing Exceptional Medical Care to Every Patient with Modern Technology.</p>
 </div>
 
-<div class="container py-2" style="position: relative; z-index: 2;">
+<div class="container pb-5">
     <div class="row g-4 justify-content-center">
         <!-- Book Appointments -->
-        <div class="col-md-4">
-            <div class="card h-100 shadow hover-transform text-dark">
-                <div class="card-body text-center p-5">
-                    <div class="display-1 mb-4 text-primary">
-                        <span style="font-size: 0.8em;">📅</span>
+        <div class="col-lg-4 col-md-6 animate-fade-up delay-1">
+            <div class="glass-card h-100 shadow-lg text-dark border-0">
+                <div class="card-body text-center p-4 p-md-5">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-calendar-plus"></i>
                     </div>
                     <h3 class="fw-bold mb-3">Book Appointments</h3>
-                    <p class="text-muted mb-4">Quickly schedule your visit with our expert medical specialists online.
-                    </p>
+                    <p class="text-muted mb-4 small">Schedule your visit instantly. Our specialists are ready to provide the best care for you and your family.</p>
                     <div class="d-grid">
-                        <a href="{% url 'appointments' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Book
-                            Now</a>
+                        <a href="{% url 'appointments' %}" class="btn btn-primary btn-custom rounded-pill">Book Now</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Patient Portal -->
-        <div class="col-md-4">
-            <div class="card h-100 shadow hover-transform text-dark">
-                <div class="card-body text-center p-5">
-                    <div class="display-1 mb-4 text-info">
-                        <span style="font-size: 0.8em;">👤</span>
+        <div class="col-lg-4 col-md-6 animate-fade-up delay-2">
+            <div class="glass-card h-100 shadow-lg text-dark border-0">
+                <div class="card-body text-center p-4 p-md-5">
+                    <div class="icon-box bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-person-badge"></i>
                     </div>
-                    <h3 class="fw-bold mb-3">Patient Login</h3>
-                    <p class="text-muted mb-4">Access your records, view diet plans, and manage your health history.</p>
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'patient_login' %}"
-                            class="btn btn-info text-white btn-lg rounded-pill shadow-sm">Patient Login</a>
-                        <a href="{% url 'patient_register' %}"
-                            class="btn btn-outline-info btn-lg rounded-pill bg-white">New Registration</a>
+                    <h3 class="fw-bold mb-3">Patient Portal</h3>
+                    <p class="text-muted mb-4 small">Access secure health records, personalized diet plans, and your complete medical history in one place.</p>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'patient_login' %}" class="btn btn-info text-white btn-custom rounded-pill">Login Portal</a>
+                        <a href="{% url 'patient_register' %}" class="btn btn-outline-info btn-custom rounded-pill">Create Account</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Doctor Portal -->
-        <div class="col-md-4">
-            <div class="card h-100 shadow hover-transform text-dark">
-                <div class="card-body text-center p-5">
-                    <div class="display-1 mb-4 text-success">
-                        <span style="font-size: 0.8em;">👨‍⚕️</span>
+        <div class="col-lg-4 col-md-6 animate-fade-up delay-3">
+            <div class="glass-card h-100 shadow-lg text-dark border-0">
+                <div class="card-body text-center p-4 p-md-5">
+                    <div class="icon-box bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-heart-pulse"></i>
                     </div>
-                    <h3 class="fw-bold mb-3">Doctor Login</h3>
-                    <p class="text-muted mb-4">Medical staff dashboard to manage appointments and patient consultations.
-                    </p>
+                    <h3 class="fw-bold mb-3">Doctor Hub</h3>
+                    <p class="text-muted mb-4 small">Dedicated space for medical professionals to manage consultations, patient data, and clinical schedules.</p>
                     <div class="d-grid">
-                        <a href="{% url 'doctor_login' %}" class="btn btn-success btn-lg rounded-pill shadow-sm">Doctor
-                            Login</a>
+                        <a href="{% url 'doctor_login' %}" class="btn btn-success btn-custom rounded-pill">Medical Login</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Links / Info Section -->
-    <div class="row mt-5 pt-5 text-center quick-links">
-        <div class="col-md-4">
-            <div class="p-3">
-                <h5 class="fw-bold">24/7 Support</h5>
-                <p class="small">Round-the-clock medical assistance for all patients.</p>
-            </div>
+    <!-- Stats / Trust Section -->
+    <div class="row mt-5 pt-5 text-center g-4 animate-fade-up">
+        <div class="col-6 col-md-4">
+            <h2 class="fw-bold text-primary mb-1">24/7</h2>
+            <p class="text-light opacity-75 small text-uppercase">Direct Support</p>
         </div>
-        <div class="col-md-4">
-            <div class="p-3">
-                <h5 class="fw-bold">Expert Doctors</h5>
-                <p class="small">Top-tier specialists across all medical fields.</p>
-            </div>
+        <div class="col-6 col-md-4">
+            <h2 class="fw-bold text-info mb-1">50+</h2>
+            <p class="text-light opacity-75 small text-uppercase">Expert Doctors</p>
         </div>
-        <div class="col-md-4">
-            <div class="p-3">
-                <h5 class="fw-bold">Digital Healthcare</h5>
-                <p class="small">Fully digitalized record keeping and appointment booking.</p>
-            </div>
+        <div class="col-12 col-md-4">
+            <h2 class="fw-bold text-success mb-1">100%</h2>
+            <p class="text-light opacity-75 small text-uppercase">Digital Records</p>
         </div>
     </div>
 </div>
+{% endblock %}
 {% endblock %}
