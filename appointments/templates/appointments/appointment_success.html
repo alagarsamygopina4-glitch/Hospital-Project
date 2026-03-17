@@ -1,0 +1,51 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 bg-light">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <h1 style="font-size: 60px;">✅</h1>
+                    </div>
+                    
+                    <h2 class="mb-3">Appointment Booked Successfully!</h2>
+                    <p class="lead text-muted mb-4">Your appointment has been confirmed.</p>
+                    
+                    <div class="alert alert-success mb-4">
+                        <h3 class="text-success">Your Token Number</h3>
+                        <h1 class="display-4 text-success">{{ appointment.token_number }}</h1>
+                        <p class="text-muted">Save this token for your records</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Appointment Details</h5>
+                            <p><strong>Name:</strong> {{ appointment.patient_name }}</p>
+                            <p><strong>Email:</strong> {{ appointment.patient_email }}</p>
+                            <p><strong>Phone:</strong> {{ appointment.patient_phone }}</p>
+                            {% if appointment.doctor %}
+                            <p><strong>Doctor:</strong> {{ appointment.doctor.name }}</p>
+                            {% else %}
+                            <p><strong>Doctor:</strong> <span class="badge bg-warning">To be assigned</span></p>
+                            {% endif %}
+                            <p><strong>Date:</strong> {{ appointment.appointment_date }}</p>
+                            <p><strong>Time:</strong> {{ appointment.appointment_time }}</p>
+                            <p><strong>Reason:</strong> {{ appointment.reason }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <p>✉️ A confirmation email has been sent to <strong>{{ appointment.patient_email }}</strong></p>
+                    </div>
+                    
+                    <a href="{% url 'appointments' %}" class="btn btn-primary btn-lg">
+                        Book Another Appointment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

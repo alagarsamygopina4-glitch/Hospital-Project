@@ -1,0 +1,158 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<style>
+    /* Full Page Background applied to body */
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)),
+            url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat fixed !important;
+        color: white;
+    }
+
+    /* Make navbar transparent with blur */
+    .navbar {
+        background-color: rgba(44, 62, 80, 0.6) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Make footer transparent with blur */
+    footer {
+        background-color: rgba(33, 37, 41, 0.6) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8) !important;
+        position: relative;
+        z-index: 10;
+        margin-top: 4rem !important;
+    }
+
+    .hover-transform {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-transform:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .display-1 {
+        font-size: 4rem;
+    }
+
+    .card {
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.92);
+        /* Highly transparent white cards */
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .btn-lg {
+        padding: 12px 30px;
+    }
+
+    .text-muted {
+        color: #5c636a !important;
+        /* Ensure card text stays gray instead of inheriting white */
+    }
+
+    .quick-links h5 {
+        color: white;
+    }
+
+    .quick-links p {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+</style>
+
+<div class="container text-center mt-4 pt-5 mb-5 pb-2 text-white" style="position: relative; z-index: 2;">
+    <h1 class="display-3 fw-bold mb-3" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">Surya Hospital System</h1>
+    <p class="lead mb-0" style="font-size: 1.35rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.5);">Efficient Healthcare
+        solutions at your fingertips</p>
+</div>
+
+<div class="container py-2" style="position: relative; z-index: 2;">
+    <div class="row g-4 justify-content-center">
+        <!-- Book Appointments -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow hover-transform text-dark">
+                <div class="card-body text-center p-5">
+                    <div class="display-1 mb-4 text-primary">
+                        <span style="font-size: 0.8em;">📅</span>
+                    </div>
+                    <h3 class="fw-bold mb-3">Book Appointments</h3>
+                    <p class="text-muted mb-4">Quickly schedule your visit with our expert medical specialists online.
+                    </p>
+                    <div class="d-grid">
+                        <a href="{% url 'appointments' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Book
+                            Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Portal -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow hover-transform text-dark">
+                <div class="card-body text-center p-5">
+                    <div class="display-1 mb-4 text-info">
+                        <span style="font-size: 0.8em;">👤</span>
+                    </div>
+                    <h3 class="fw-bold mb-3">Patient Login</h3>
+                    <p class="text-muted mb-4">Access your records, view diet plans, and manage your health history.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'patient_login' %}"
+                            class="btn btn-info text-white btn-lg rounded-pill shadow-sm">Patient Login</a>
+                        <a href="{% url 'patient_register' %}"
+                            class="btn btn-outline-info btn-lg rounded-pill bg-white">New Registration</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Portal -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow hover-transform text-dark">
+                <div class="card-body text-center p-5">
+                    <div class="display-1 mb-4 text-success">
+                        <span style="font-size: 0.8em;">👨‍⚕️</span>
+                    </div>
+                    <h3 class="fw-bold mb-3">Doctor Login</h3>
+                    <p class="text-muted mb-4">Medical staff dashboard to manage appointments and patient consultations.
+                    </p>
+                    <div class="d-grid">
+                        <a href="{% url 'doctor_login' %}" class="btn btn-success btn-lg rounded-pill shadow-sm">Doctor
+                            Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links / Info Section -->
+    <div class="row mt-5 pt-5 text-center quick-links">
+        <div class="col-md-4">
+            <div class="p-3">
+                <h5 class="fw-bold">24/7 Support</h5>
+                <p class="small">Round-the-clock medical assistance for all patients.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3">
+                <h5 class="fw-bold">Expert Doctors</h5>
+                <p class="small">Top-tier specialists across all medical fields.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3">
+                <h5 class="fw-bold">Digital Healthcare</h5>
+                <p class="small">Fully digitalized record keeping and appointment booking.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

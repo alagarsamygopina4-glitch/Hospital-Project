@@ -1,0 +1,152 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-5">
+        <h2 class="display-4 fw-bold">📋 Book Your Appointment</h2>
+        <p class="lead text-muted">Fill in your details to schedule your visit</p>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    
+                    {% if messages %}
+                    <div class="alert alert-success alert-dismissible fade show">
+                        {% for message in messages %}
+                        {{ message }}
+                        {% endfor %}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="card mb-4 bg-light">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">👤 Patient Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.patient_name.id_for_label }}" class="form-label fw-bold">
+                                        Full Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.patient_name }}
+                                    {% if form.patient_name.errors %}
+                                    <div class="alert alert-danger mt-2">{{ form.patient_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.patient_email.id_for_label }}" class="form-label fw-bold">
+                                        Email Address <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.patient_email }}
+                                    {% if form.patient_email.errors %}
+                                    <div class="alert alert-danger mt-2">{{ form.patient_email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.patient_phone.id_for_label }}" class="form-label fw-bold">
+                                        Phone Number <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.patient_phone }}
+                                    {% if form.patient_phone.errors %}
+                                    <div class="alert alert-danger mt-2">{{ form.patient_phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4 bg-light">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">📅 Appointment Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.doctor.id_for_label }}" class="form-label fw-bold">
+                                        👨‍⚕️ Select Doctor (Optional)
+                                    </label>
+                                    {{ form.doctor }}
+                                    <small class="text-muted">You can select a doctor or leave it blank</small>
+                                    {% if form.doctor.errors %}
+                                    <div class="alert alert-danger mt-2">{{ form.doctor.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.appointment_date.id_for_label }}" class="form-label fw-bold">
+                                            Appointment Date <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.appointment_date }}
+                                        {% if form.appointment_date.errors %}
+                                        <div class="alert alert-danger mt-2">{{ form.appointment_date.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.appointment_time.id_for_label }}" class="form-label fw-bold">
+                                            Appointment Time <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.appointment_time }}
+                                        {% if form.appointment_time.errors %}
+                                        <div class="alert alert-danger mt-2">{{ form.appointment_time.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.reason.id_for_label }}" class="form-label fw-bold">
+                                        Reason for Visit <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.reason }}
+                                    {% if form.reason.errors %}
+                                    <div class="alert alert-danger mt-2">{{ form.reason.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'home' %}" class="btn btn-secondary btn-lg">
+                                ← Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                ✓ Book Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        padding: 12px;
+        border-radius: 8px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        border: 2px solid #007bff;
+    }
+    
+    .btn-lg {
+        font-weight: 600;
+        padding: 12px 30px;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}

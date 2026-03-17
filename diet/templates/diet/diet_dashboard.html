@@ -1,0 +1,98 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🥗 My Diet Plan</h2>
+        {% if diet_plan %}
+        <span
+            class="badge bg-{% if diet_plan.status == 'approved' or diet_plan.status == 'published' %}success{% else %}warning{% endif %}">
+            {{ diet_plan.get_status_display }}
+        </span>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+    <div class="alert alert-success alert-dismissible fade show">
+        {% for message in messages %}
+        <strong>{{ message }}</strong>
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    {% if diet_plan %}
+    {% if diet_plan.status == 'approved' or diet_plan.status == 'published' %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">Plan Overview</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Diet Type:</strong> {{ diet_plan.get_diet_type_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Daily Calories:</strong> {{ diet_plan.calories_per_day }} kcal</p>
+                </div>
+            </div>
+
+            {% if diet_plan.doctor_notes %}
+            <div class="alert alert-info mt-3">
+                <strong>👨‍⚕️ Doctor's Notes:</strong> {{ diet_plan.doctor_notes }}
+            </div>
+            {% endif %}
+
+            {% if diet_plan.ai_generated_plan %}
+            <div class="mt-4 p-4 bg-light border rounded">
+                <h5 class="text-primary mb-3">🤖 AI Nutrition Plan</h5>
+                <div class="markdown-body">
+                    {{ diet_plan.ai_generated_plan|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if recommendations %}
+    <h4 class="mb-3">Recommended Foods</h4>
+    <div class="table-responsive">
+        <table class="table table-hover border">
+            <thead class="table-light">
+                <tr>
+                    <th>Food Item</th>
+                    <th>Calories</th>
+                    <th>Protein (g)</th>
+                    <th>Carbs (g)</th>
+                    <th>Fat (g)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recommendations %}
+                <tr>
+                    <td>{{ item.food_item }}</td>
+                    <td>{{ item.calories }}</td>
+                    <td>{{ item.protein }}</td>
+                    <td>{{ item.carbs }}</td>
+                    <td>{{ item.fat }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="alert alert-warning">
+        <h4>Plan Pending Approval</h4>
+        <p>Your diet plan has been generated but is awaiting doctor approval. Please check back later.</p>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center p-5">
+        <h4>No Diet Plan Assigned Yet</h4>
+        <p>Your doctor will create a personalized diet plan based on your health profile shortly.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

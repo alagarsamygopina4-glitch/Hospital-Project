@@ -1,0 +1,264 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="admin-wrapper" style="margin-top: -1.5rem; min-height: 100vh; background-color: #f8f9fa;">
+    <!-- Django-style Admin Header -->
+    <div class="admin-header py-2 px-4 d-flex justify-content-between align-items-center"
+        style="background-color: #417690; color: #f5dd5d;">
+        <h1 class="h4 mb-0 fw-bold">Site administration</h1>
+        <div class="admin-user-info small text-white">
+            WELCOME, <span class="fw-bold">{{ request.user.username|upper }}</span>.
+            <a href="{% url 'home' %}" class="text-white text-decoration-none ms-2">VIEW SITE</a> /
+            <a href="/admin/password_change/" class="text-white text-decoration-none">CHANGE PASSWORD</a> /
+            <a href="/admin/logout/" class="text-white text-decoration-none">LOG OUT</a>
+        </div>
+    </div>
+
+    <!-- Breadcrumbs -->
+    <div class="admin-breadcrumbs px-4 py-2 border-bottom"
+        style="background-color: #79aec8; color: white; font-size: 0.85rem;">
+        Home › Dashboard
+    </div>
+
+    <div class="container-fluid mt-4">
+        <div class="row px-3">
+            <!-- Sidebar -->
+            <div class="col-md-3 pe-4">
+                <div class="admin-sidebar shadow-sm rounded bg-white overflow-hidden mb-4">
+                    <div class="sidebar-section">
+                        <div class="section-header p-3 fw-bold text-white ripple-effect"
+                            style="background-color: #79aec8; font-size: 0.9rem; letter-spacing: 0.5px;">SYSTEM MODULES
+                        </div>
+                        <ul class="list-unstyled mb-0">
+                            <!-- Appointments Link -->
+                            <li class="p-2 px-3 border-bottom d-flex justify-content-between align-items-center sidebar-item active"
+                                onclick="showSection('appointments-sec')">
+                                <span class="text-primary fw-bold"
+                                    style="font-size: 0.9rem; cursor: pointer;">Appointments</span>
+                                <div class="admin-actions">
+                                    <a href="#" class="text-success text-decoration-none fw-bold small">+ Add</a>
+                                </div>
+                            </li>
+                            <!-- Patients Link -->
+                            <li class="p-2 px-3 border-bottom d-flex justify-content-between align-items-center sidebar-item"
+                                onclick="showSection('patients-sec')">
+                                <span class="text-primary fw-bold" style="font-size: 0.9rem; cursor: pointer;">Patient
+                                    Profiles</span>
+                                <div class="admin-actions">
+                                    <a href="#" class="text-success text-decoration-none fw-bold small">+ Add</a>
+                                </div>
+                            </li>
+                            <!-- Doctors Link -->
+                            <li class="p-2 px-3 border-bottom d-flex justify-content-between align-items-center sidebar-item"
+                                onclick="showSection('doctors-sec')">
+                                <span class="text-primary fw-bold" style="font-size: 0.9rem; cursor: pointer;">Doctor
+                                    Profiles</span>
+                                <div class="admin-actions">
+                                    <a href="#" class="text-success text-decoration-none fw-bold small">+ Add</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 text-dark">
+
+                <!-- Appointments Section -->
+                <div id="appointments-sec" class="admin-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-muted" style="font-size: 1.1rem;">Select appointment to change</h5>
+                        <button class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm"
+                            style="background-color: #999; border: none; font-size: 0.8rem;">ADD APPOINTMENT +</button>
+                    </div>
+
+                    <div class="bg-white p-2 mb-3 border rounded shadow-sm d-flex align-items-center">
+                        <div class="input-group input-group-sm" style="width: 300px;">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" placeholder="Search appointments...">
+                        </div>
+                        <button class="btn btn-light btn-sm ms-2 border px-3">Search</button>
+                    </div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                <thead style="background-color: #f8f8f8; color: #666;">
+                                    <tr>
+                                        <th class="ps-3 py-2"><input type="checkbox"></th>
+                                        <th class="py-2 text-uppercase">Token Number</th>
+                                        <th class="py-2 text-uppercase">Patient</th>
+                                        <th class="py-2 text-uppercase">Doctor</th>
+                                        <th class="py-2 text-uppercase">Date</th>
+                                        <th class="py-2 text-uppercase">Time</th>
+                                        <th class="py-2 pe-3 text-uppercase text-end">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appt in appointments %}
+                                    <tr style="cursor: pointer;">
+                                        <td class="ps-3"><input type="checkbox"></td>
+                                        <td><a href="#" class="text-primary text-decoration-none fw-bold">{{ appt.token_number }}</a></td>
+                                        <td>{{ appt.patient_name }} ({{ appt.patient_email }})</td>
+                                        <td>{{ appt.doctor.name }}</td>
+                                        <td>{{ appt.appointment_date }}</td>
+                                        <td>{{ appt.appointment_time }}</td>
+                                        <td class="pe-3 text-end">
+                                            <span
+                                                class="badge {% if appt.status == 'pending' %}bg-warning text-dark{% elif appt.status == 'confirmed' %}bg-info text-white{% else %}bg-secondary{% endif %}"
+                                                style="font-size: 0.7rem; font-weight: 500; border-radius: 4px; padding: 3px 8px;">{{ appt.status|upper }}</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">No appointments found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="p-2 px-3 border-top bg-light small fw-bold text-muted">
+                                {{ appointments|length }} appointments
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patients Section (Hidden by default) -->
+                <div id="patients-sec" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-muted" style="font-size: 1.1rem;">Select patient to view details</h5>
+                        <button class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm"
+                            style="background-color: #999; border: none; font-size: 0.8rem;">REGISTER NEW PATIENT
+                            +</button>
+                    </div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                <thead style="background-color: #f8f8f8; color: #666;">
+                                    <tr>
+                                        <th class="ps-3 py-2"><input type="checkbox"></th>
+                                        <th class="py-2 text-uppercase">Username</th>
+                                        <th class="py-2 text-uppercase">Email Address</th>
+                                        <th class="py-2 text-uppercase">Registration Date</th>
+                                        <th class="py-2 pe-3 text-uppercase text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients %}
+                                    <tr>
+                                        <td class="ps-3"><input type="checkbox"></td>
+                                        <td><a href="#" class="text-primary text-decoration-none fw-bold">{{ patient.username }}</a></td>
+                                        <td>{{ patient.email }}</td>
+                                        <td>{{ patient.created_at }}</td>
+                                        <td class="pe-3 text-end">
+                                            <button
+                                                class="btn btn-link text-primary p-0 btn-sm fw-bold text-decoration-none">View
+                                                Complete Profile</button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No patients registered.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="p-2 px-3 border-top bg-light small fw-bold text-muted">
+                                {{ patients|length }} patients
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctors Section (Hidden by default) -->
+                <div id="doctors-sec" class="admin-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-muted" style="font-size: 1.1rem;">Active Medical Staff</h5>
+                        <button class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm"
+                            style="background-color: #999; border: none; font-size: 0.8rem;">ADD DOCTOR +</button>
+                    </div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                <thead style="background-color: #f8f8f8; color: #666;">
+                                    <tr>
+                                        <th class="ps-3 py-2">NAME</th>
+                                        <th class="py-2">SPECIALIZATION</th>
+                                        <th class="py-2">AVAILABILITY</th>
+                                        <th class="py-2 pe-3 text-end">USERNAME</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in doctors %}
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-dark">{{ doc.name }}</td>
+                                        <td>{{ doc.specialization }}</td>
+                                        <td>{{ doc.available_days }} ({{ doc.available_time_start }} - {{ doc.available_time_end }})</td>
+                                        <td class="pe-3 text-end text-muted">{{ doc.username }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.admin-section').forEach(sec => {
+            sec.classList.add('d-none');
+        });
+
+        // Show selected section
+        document.getElementById(sectionId).classList.remove('d-none');
+
+        // Update sidebar styling
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.classList.remove('active');
+            item.classList.remove('bg-light');
+        });
+
+        // Find the clicked item and mark active
+        event.currentTarget.classList.add('active');
+        event.currentTarget.classList.add('bg-light');
+    }
+</script>
+
+<style>
+    .admin-wrapper {
+        font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+    }
+
+    .sidebar-section .section-header {
+        text-transform: uppercase;
+        font-size: 0.8rem !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #ffffcc !important;
+    }
+
+    .sidebar-item {
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .sidebar-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .sidebar-item.active {
+        border-left: 4px solid #79aec8;
+    }
+</style>
+{% endblock %}

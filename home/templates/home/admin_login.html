@@ -1,0 +1,86 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
+                <div class="card-header bg-dark text-white text-center py-5"
+                    style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);">
+                    <div class="display-3 mb-3">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0">System Administration</h2>
+                    <p class="mb-0 opacity-75">Authorized access only</p>
+                </div>
+                <div class="card-body p-5">
+                    {% if message %}
+                    <div class="alert alert-danger border-0 shadow-sm mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-bold">Admin Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-person-fill"></i></span>
+                                <input type="text" name="username" id="username"
+                                    class="form-control bg-light border-start-0 py-2" placeholder="Admin username"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <label for="password" class="form-label fw-bold">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-lock-fill"></i></span>
+                                <input type="password" name="password" id="password"
+                                    class="form-control bg-light border-start-0 py-2" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg rounded-pill fw-bold shadow-sm py-3 mt-2"
+                                style="background: #2c3e50;">
+                                Log In to Console <i class="bi bi-terminal-fill ms-2"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="{% url 'home' %}" class="btn btn-link text-muted text-decoration-none small">
+                                <i class="bi bi-arrow-left"></i> Return to Site
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-muted small"><i class="bi bi-info-circle me-1"></i> Use your superuser credentials to
+                    access the admin dashboard.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f4f7f6;
+    }
+
+    .input-group-text {
+        color: #6c757d;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #2c3e50;
+    }
+
+    .btn-dark:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(44, 62, 80, 0.4);
+    }
+</style>
+{% endblock %}

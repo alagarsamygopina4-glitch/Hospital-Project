@@ -1,0 +1,60 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🥗 Create / Update Diet Plan</h4>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Patient</label>
+                    <select name="patient_id" class="form-select" required>
+                        <option value="" disabled selected>Choose a patient...</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.id }}">{{ patient.username }} ({{ patient.email }})</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Select the patient to assign this plan to.</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Diet Type</label>
+                        <select name="diet_type" class="form-select" required>
+                            <option value="balanced">Balanced Diet</option>
+                            <option value="keto">Keto Diet</option>
+                            <option value="vegan">Vegan Diet</option>
+                            <option value="low_carb">Low Carb</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Daily Calories (kcal)</label>
+                        <input type="number" name="calories" class="form-control" placeholder="e.g. 2000" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🤖 AI Generated Plan Content</label>
+                    <textarea name="ai_content" class="form-control font-monospace" rows="12"
+                        placeholder="Paste the AI-generated diet plan, meal recommendations, and nutritional advice here..."></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">💾 Save Diet Plan</button>
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

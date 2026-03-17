@@ -1,0 +1,38 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2>Welcome to Hospital Appointment System</h2>
+    <p class="lead mt-3">Book your medical appointments online</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">👨‍⚕️ Find Doctors</h5>
+                    <p class="card-text">Browse our team of experienced doctors</p>
+                    <a href="{% url 'appointments' %}" class="btn btn-primary">View Doctors</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📅 Book Appointment</h5>
+                    <p class="card-text">Schedule your appointment easily</p>
+                    <a href="{% url 'book_appointment' %}" class="btn btn-primary">Book Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📋 My Appointments</h5>
+                    <p class="card-text">View your scheduled appointments</p>
+                    <a href="{% url 'my_appointments' %}" class="btn btn-primary">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

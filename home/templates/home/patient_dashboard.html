@@ -1,0 +1,177 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="dashboard-wrapper bg-light min-vh-100" style="margin-top: -1.5rem;">
+    <!-- Dashboard Top Header -->
+    <div class="bg-white border-bottom py-3 mb-4 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-bold text-primary"><span class="bg-primary text-white p-2 rounded me-2">🏥</span> Surya
+                Hospital</h4>
+            <div class="text-muted small fw-bold text-uppercase letter-spacing-1">Patient Portal</div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row g-4">
+            <!-- Left Side: Main Dashboard Content -->
+            <div class="col-lg-8">
+                <!-- Welcome Card -->
+                <div
+                    class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4 bg-gradient-blue text-white p-4 position-relative">
+                    <div class="card-body py-4 ps-4 z-index-1">
+                        <h1 class="display-5 fw-bold mb-2">Hello, {{ first_name }}</h1>
+                        <p class="lead opacity-90 mb-4">Track your health journey and upcoming appointments.</p>
+                        <a href="{% url 'appointments' %}"
+                            class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">Book New Appointment</a>
+                    </div>
+                </div>
+
+                <!-- AI Diet Plans Section -->
+                <div class="mb-5">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center">
+                        <i class="bi bi-magic text-primary me-2"></i> Your AI-Generated Diet Plans
+                    </h5>
+
+                    {% if diet_plan %}
+                    <div class="card border-0 rounded-4 shadow-sm p-4 bg-white border-left-blue">
+                        <div class="mb-4">
+                            <span class="text-muted small d-block mb-1 text-uppercase">Generated on {{ diet_plan.created_at|date:"F j, Y" }}</span>
+                            <h6 class="text-primary fw-bold mb-0">Medical Focus: {{ diet_plan.diet_type }}</h6>
+                        </div>
+
+                        <div class="row g-3">
+                            {% for rec in diet_recommendations %}
+                            <div class="col-md-4">
+                                <div class="bg-light p-3 rounded-3 text-center h-100 border">
+                                    <span class="text-uppercase x-small fw-bold text-muted d-block mb-2">{{ rec.meal_time }}</span>
+                                    <p class="mb-0 fw-bold small text-dark">{{ rec.recommendation }}</p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12 text-center py-3">
+                                <p class="text-muted italic small mb-0">Plan details are being finalized by your doctor.
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white border-dashed">
+                        <i class="bi bi-journal-medical text-muted display-4 mb-3"></i>
+                        <p class="text-muted mb-0">No active diet plans found. Book an appointment to get a personalized
+                            plan.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div>
+                    <h5 class="fw-bold mb-4 d-flex align-items-center">
+                        <i class="bi bi-calendar-check text-primary me-2"></i> Upcoming Appointments
+                    </h5>
+                    <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 text-muted small text-uppercase">Service</th>
+                                    <th class="py-3 text-muted small text-uppercase">Date/Time</th>
+                                    <th class="pe-4 py-3 text-muted small text-uppercase">Token</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in appointments %}
+                                <tr>
+                                    <td class="ps-4 py-3 fw-bold text-dark">Consultation</td>
+                                    <td class="py-3">{{ appt.appointment_date|date:"M j" }} at {{ appt.appointment_time }}</td>
+                                    <td class="pe-4 py-3 text-muted font-monospace">{{ appt.token_number }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5 text-muted">No appointments scheduled.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Profile & Info -->
+            <div class="col-lg-4">
+                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white sticky-top" style="top: 20px; z-index: 10;">
+                    <div class="text-center mb-4">
+                        <div class="profile-initial bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                            style="width: 80px; height: 80px; font-size: 2rem; color: #718096; border: 1px solid #e2e8f0;">
+                            {{ patient.full_name|default:patient.username|slice:":1"|upper }}
+                        </div>
+                        <h5 class="fw-bold mb-1 text-dark">{{ patient.full_name|default:patient.username }}</h5>
+                        <p class="text-muted small mb-0">{{ patient.email }}</p>
+                    </div>
+
+                    <hr class="my-4 opacity-50">
+
+                    <div class="profile-details">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted small">Blood Group</span>
+                            <span class="fw-bold text-danger">{{ patient.blood_group|default:"N/A" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted small">Date of Birth</span>
+                            <span class="fw-bold text-dark">{% if patient.date_of_birth %}{{ patient.date_of_birth|date:"F d, Y" }}{% else %}Not Set{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-muted small">Contact</span>
+                            <span class="fw-bold text-dark">{{ patient.contact|default:"Not Set" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'patient_logout' %}"
+                            class="btn btn-link text-danger fw-bold text-decoration-none p-0">Sign Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-blue {
+        background: linear-gradient(135deg, #1e90ff 0%, #3b82f6 100%);
+    }
+
+    .border-left-blue {
+        border-left: 5px solid #1e90ff !important;
+    }
+
+    .letter-spacing-1 {
+        letter-spacing: 1px;
+    }
+
+    .x-small {
+        font-size: 0.65rem;
+    }
+
+    .z-index-1 {
+        z-index: 1;
+        position: relative;
+    }
+
+    .border-dashed {
+        border: 2px dashed #e2e8f0 !important;
+    }
+
+    .table> :not(caption)>*>* {
+        border-bottom-width: 0;
+    }
+
+    .table tbody tr:not(:last-child) {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .font-monospace {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}

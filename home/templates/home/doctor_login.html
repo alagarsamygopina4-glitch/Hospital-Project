@@ -1,0 +1,105 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px; background-color: rgba(255, 255, 255, 0.92) !important; backdrop-filter: blur(10px);">
+                <div class="card-header bg-success text-white text-center py-5">
+                    <div class="display-3 mb-3">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0">Doctor Portal</h2>
+                    <p class="mb-0 opacity-75">Secure access for medical professionals</p>
+                </div>
+                <div class="card-body p-5">
+                    {% if message %}
+                    <div class="alert alert-danger border-0 shadow-sm mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-bold">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-person-fill"></i></span>
+                                <input type="text" name="username" id="username"
+                                    class="form-control bg-light border-start-0 py-2" placeholder="Enter your username"
+                                    autocomplete="off" required>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <label for="password" class="form-label fw-bold">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-lock-fill"></i></span>
+                                <input type="password" name="password" id="password"
+                                    class="form-control bg-light border-start-0 py-2" placeholder="••••••••" autocomplete="new-password" required>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit"
+                                class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm py-3 mt-2">
+                                Access Dashboard <i class="bi bi-arrow-right-short ms-2"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="{% url 'home' %}" class="btn btn-link text-muted text-decoration-none small">
+                                <i class="bi bi-chevron-left"></i> Back to Home
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-muted small">Need assistance? Contact hospital IT support at <span
+                        class="text-primary">support@hospital.com</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url("{% static 'home/images/hospital_bg_v2.png' %}") no-repeat center center fixed !important;
+        background-size: cover !important;
+        background-color: #f0f2f5 !important;
+    }
+
+    .input-group-text {
+        color: #6c757d;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #198754;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #198754 0%, #157347 100%);
+        border: none;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3);
+    }
+</style>
+
+<script>
+    // Ensure form fields are completely cleared on page load, thwarting the browser's aggressive autofill
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            var userField = document.getElementById('username');
+            var passField = document.getElementById('password');
+            if(userField) userField.value = '';
+            if(passField) passField.value = '';
+        }, 150);
+    });
+</script>
+{% endblock %}
