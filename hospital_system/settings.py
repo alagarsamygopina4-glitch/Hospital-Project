@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-_pk51@tk#gcmury$w*wgw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['10.64.152.241', '10.64.152.17', '127.0.0.1', 'localhost', '*.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
