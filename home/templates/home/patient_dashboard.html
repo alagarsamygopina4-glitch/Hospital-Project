@@ -116,6 +116,18 @@
                             <span class="fw-bold text-danger">{{ patient.blood_group|default:"N/A" }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted small">Height</span>
+                            <span class="fw-bold text-dark">{% if patient.height %}{{ patient.height }} cm{% else %}Not Set{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted small">Weight</span>
+                            <span class="fw-bold text-dark">{% if patient.weight %}{{ patient.weight }} kg{% else %}Not Set{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted small">BMI</span>
+                            <span class="fw-bold text-info">{% if patient.bmi %}{{ patient.bmi }}{% else %}Not Set{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
                             <span class="text-muted small">Date of Birth</span>
                             <span class="fw-bold text-dark">{% if patient.date_of_birth %}{{ patient.date_of_birth|date:"F d, Y" }}{% else %}Not Set{% endif %}</span>
                         </div>

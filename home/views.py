@@ -18,6 +18,8 @@ def patient_register(request):
         blood_group = request.POST.get("blood_group")
         dob = request.POST.get("dob")
         contact = request.POST.get("contact")
+        height = request.POST.get("height")
+        weight = request.POST.get("weight")
 
         # Check if username already exists
         if Patient.objects.filter(username=username).exists():
@@ -26,6 +28,16 @@ def patient_register(request):
         if Patient.objects.filter(email=email).exists():
             return render(request, 'home/patient_register.html', {'error': 'Email already exists!'})
 
+        # Calculate BMI if height and weight are provided
+        bmi = None
+        try:
+            h = float(height)
+            w = float(weight)
+            if h > 0 and w > 0:
+                bmi = round(w / ((h / 100) ** 2), 2)
+        except (TypeError, ValueError):
+            bmi = None
+
         patient = Patient.objects.create(
             username=username,
             full_name=full_name,
@@ -33,7 +45,10 @@ def patient_register(request):
             password=password,
             blood_group=blood_group,
             date_of_birth=dob if dob else None,
-            contact=contact
+            contact=contact,
+            height=float(height) if height else None,
+            weight=float(weight) if weight else None,
+            bmi=bmi,
         )
 
         # Auto-login after registration

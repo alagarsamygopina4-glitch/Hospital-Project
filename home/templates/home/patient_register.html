@@ -98,6 +98,54 @@
                             </div>
                         </div>
 
+                        <!-- Height & Weight Row -->
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="height" class="form-label fw-bold">Height <span class="text-muted fw-normal">(cm)</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-rulers text-info"></i></span>
+                                    <input type="number" name="height" id="height"
+                                        class="form-control bg-light border-start-0 py-2"
+                                        placeholder="e.g. 170" min="50" max="250" step="0.1" required>
+                                    <span class="input-group-text bg-light">cm</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="weight" class="form-label fw-bold">Weight <span class="text-muted fw-normal">(kg)</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-speedometer2 text-info"></i></span>
+                                    <input type="number" name="weight" id="weight"
+                                        class="form-control bg-light border-start-0 py-2"
+                                        placeholder="e.g. 65" min="1" max="300" step="0.1" required>
+                                    <span class="input-group-text bg-light">kg</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live BMI Card -->
+                        <div id="bmi-card" class="bmi-card mb-4" style="display:none;">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bmi-icon-wrap">
+                                        <i class="bi bi-activity fs-3 text-info"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Your BMI</div>
+                                        <div class="bmi-value" id="bmi-value">—</div>
+                                    </div>
+                                </div>
+                                <span id="bmi-badge" class="badge fs-6 px-3 py-2 rounded-pill">—</span>
+                            </div>
+                            <div class="mt-2">
+                                <div class="bmi-scale-bar">
+                                    <div id="bmi-indicator" class="bmi-indicator"></div>
+                                </div>
+                                <div class="d-flex justify-content-between bmi-scale-labels">
+                                    <span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-5">
                             <label for="password" class="form-label fw-bold">Secure Password</label>
                             <div class="input-group">
@@ -184,16 +232,105 @@
         font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
         font-size: 0.8rem;
     }
+
+    /* BMI Card */
+    .bmi-card {
+        background: linear-gradient(135deg, #e8f8fd 0%, #f0fffe 100%);
+        border: 1.5px solid #b2ebf2;
+        border-radius: 16px;
+        padding: 1.1rem 1.4rem;
+        animation: fadeIn 0.3s ease;
+    }
+    .bmi-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0dcaf0;
+        line-height: 1;
+    }
+    .bmi-icon-wrap {
+        width: 52px; height: 52px;
+        background: #e0f7fa;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .bmi-scale-bar {
+        position: relative;
+        height: 8px;
+        border-radius: 10px;
+        background: linear-gradient(to right, #3498db 0%, #2ecc71 27.5%, #f39c12 37.5%, #e74c3c 60%, #c0392b 100%);
+        margin-top: 10px;
+        margin-bottom: 4px;
+    }
+    .bmi-indicator {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px; height: 16px;
+        background: white;
+        border: 3px solid #0dcaf0;
+        border-radius: 50%;
+        transition: left 0.4s ease;
+    }
+    .bmi-scale-labels {
+        font-size: 0.7rem;
+        color: #90a4ae;
+        margin-top: 2px;
+    }
 </style>
 
 <script>
-    // Set max date for Date of Birth to today
     document.addEventListener('DOMContentLoaded', function () {
+        // Set max date for Date of Birth to today
         const dobInput = document.getElementById('dob');
         if (dobInput) {
             const today = new Date().toISOString().split('T')[0];
             dobInput.setAttribute('max', today);
         }
+
+        // Live BMI Calculator
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const bmiCard   = document.getElementById('bmi-card');
+        const bmiValue  = document.getElementById('bmi-value');
+        const bmiBadge  = document.getElementById('bmi-badge');
+        const bmiIndicator = document.getElementById('bmi-indicator');
+
+        function calcBMI() {
+            const h = parseFloat(heightInput.value);
+            const w = parseFloat(weightInput.value);
+            if (!h || !w || h <= 0 || w <= 0) {
+                bmiCard.style.display = 'none';
+                return;
+            }
+            const bmi = w / Math.pow(h / 100, 2);
+            bmiCard.style.display = 'block';
+            bmiValue.textContent = bmi.toFixed(1);
+
+            // Determine category
+            let category, color, pct;
+            if (bmi < 18.5) {
+                category = 'Underweight'; color = '#3498db';
+                pct = Math.max(2, (bmi / 18.5) * 27);
+            } else if (bmi < 25) {
+                category = 'Normal weight'; color = '#2ecc71';
+                pct = 27 + ((bmi - 18.5) / 6.5) * 11;
+            } else if (bmi < 30) {
+                category = 'Overweight'; color = '#f39c12';
+                pct = 38 + ((bmi - 25) / 5) * 22;
+            } else {
+                category = 'Obese'; color = '#e74c3c';
+                pct = Math.min(98, 60 + ((bmi - 30) / 10) * 38);
+            }
+
+            bmiBadge.textContent = category;
+            bmiBadge.style.background = color;
+            bmiBadge.style.color = '#fff';
+            bmiIndicator.style.left = pct + '%';
+            bmiIndicator.style.borderColor = color;
+        }
+
+        heightInput.addEventListener('input', calcBMI);
+        weightInput.addEventListener('input', calcBMI);
     });
 </script>
 {% endblock %}
