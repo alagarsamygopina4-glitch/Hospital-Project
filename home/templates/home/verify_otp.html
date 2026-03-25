@@ -5,12 +5,12 @@
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
-                <div class="card-header bg-warning text-dark text-center py-5">
+                <div class="card-header bg-info text-dark text-center py-5">
                     <div class="display-3 mb-3">
-                        <i class="bi bi-key-fill"></i>
+                        <i class="bi bi-chat-left-dots-fill"></i>
                     </div>
-                    <h2 class="fw-bold mb-0">Forgot Password</h2>
-                    <p class="mb-0 opacity-75">Recover your Surya Hospital account</p>
+                    <h2 class="fw-bold mb-0">Verify OTP</h2>
+                    <p class="mb-0 opacity-75">Enter the 6-digit OTP sent to {{ email }}</p>
                 </div>
                 <div class="card-body p-5">
                     {% if message %}
@@ -19,33 +19,33 @@
                     </div>
                     {% endif %}
 
-                    <p class="text-muted text-center mb-4">Enter your registered email address to reset your password.
+                    <p class="text-muted text-center mb-4">OTP is valid for 5 minutes.
                     </p>
 
                     <form method="POST">
                         {% csrf_token %}
                         <div class="mb-4">
-                            <label for="email" class="form-label fw-bold">Email Address</label>
+                            <label for="otp" class="form-label fw-bold">6-Digit OTP</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i
-                                        class="bi bi-envelope-fill"></i></span>
-                                <input type="email" name="email" id="email"
-                                    class="form-control bg-light border-start-0 py-2" placeholder="email@example.com"
-                                    required>
+                                        class="bi bi-123"></i></span>
+                                <input type="text" name="otp" id="otp"
+                                    class="form-control bg-light border-start-0 py-2" placeholder="000000"
+                                    maxlength="6" required>
                             </div>
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit"
-                                class="btn btn-warning btn-lg rounded-pill fw-bold shadow-sm py-3 mt-2">
-                                Verify Email <i class="bi bi-arrow-right-short ms-2"></i>
+                                class="btn btn-info btn-lg rounded-pill fw-bold shadow-sm py-3 mt-2">
+                                Verify OTP <i class="bi bi-check-circle ms-2"></i>
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
             <div class="text-center mt-4">
-                <a href="{% url 'patient_login' %}" class="btn btn-link text-muted text-decoration-none small">
-                    <i class="bi bi-arrow-left"></i> Back to Login
+                <a href="{% url 'forgot_password' %}" class="btn btn-link text-muted text-decoration-none small">
+                    <i class="bi bi-arrow-left"></i> Resend OTP (Go Back)
                 </a>
             </div>
         </div>
@@ -54,7 +54,7 @@
 
 <style>
     body {
-        background-color: #fff9e6;
+        background-color: #e6f7ff;
     }
 
     .input-group-text {
@@ -63,7 +63,7 @@
 
     .form-control:focus {
         box-shadow: none;
-        border-color: #ffc107;
+        border-color: #0dcaf0;
     }
 </style>
 {% endblock %}

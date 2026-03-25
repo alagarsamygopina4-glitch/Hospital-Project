@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
-from .models import Patient
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+import random
+from .models import Patient, OTP
 from appointments.models import Doctor, Appointment
 from diet.models import DietPlan, DietRecommendation
 
@@ -170,30 +173,123 @@ def forgot_password(request):
     message = ""
     if request.method == "POST":
         email = request.POST.get("email")
-        try:
+        
+        # Detect role
+        role = None
+        user_id = None
+        
+        if Patient.objects.filter(email=email).exists():
             patient = Patient.objects.get(email=email)
-            return redirect('reset_password', email=email)
-        except Patient.DoesNotExist:
+            role = 'Patient'
+            user_id = patient.id
+        elif Doctor.objects.filter(email=email).exists():
+            doctor = Doctor.objects.get(email=email)
+            role = 'Doctor'
+            user_id = doctor.id
+        elif User.objects.filter(email=email).exists():
+            admin = User.objects.get(email=email)
+            role = 'Admin'
+            user_id = admin.id
+            
+        if role:
+            # Generate 6-digit OTP
+            otp_val = str(random.randint(100000, 999999))
+            
+            # Store OTP in DB
+            OTP.objects.create(user_id=user_id, role=role, otp=otp_val)
+            
+            # Send Email
+            try:
+                send_mail(
+                    'Password Reset OTP',
+                    f'Your OTP for password reset is: {otp_val}. It expires in 5 minutes.',
+                    'admin@hospital.com',
+                    [email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Fallback to ignore during development instead of failing hard.
+                pass
+            # Store necessary info in session
+            request.session['reset_user_id'] = user_id
+            request.session['reset_role'] = role
+            request.session['reset_email'] = email
+            
+            return redirect('verify_otp')
+        else:
             message = "No account found with that email address."
 
     return render(request, 'home/forgot_password.html', {"message": message})
 
-# Reset Password - Action
-def reset_password(request, email):
+# Verify OTP - Action
+def verify_otp(request):
     message = ""
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect('forgot_password')
+
+    if request.method == "POST":
+        otp_input = request.POST.get("otp")
+        role = request.session.get('reset_role')
+        user_id = request.session.get('reset_user_id')
+
+        # Check OTP
+        otp_record = OTP.objects.filter(user_id=user_id, role=role).order_by('-created_at').first()
+        
+        if otp_record and otp_record.otp == otp_input:
+            if not otp_record.is_expired():
+                # OTP is valid
+                request.session['otp_verified'] = True
+                return redirect('reset_password')
+            else:
+                message = "OTP has expired. Please request a new one."
+        else:
+            message = "Invalid OTP."
+
+    return render(request, 'home/verify_otp.html', {"message": message, "email": email})
+
+# Reset Password - Action
+def reset_password(request):
+    message = ""
+    # Check if OTP was verified
+    if not request.session.get('otp_verified'):
+        return redirect('forgot_password')
+
     if request.method == "POST":
         new_password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
         
+        role = request.session.get('reset_role')
+        user_id = request.session.get('reset_user_id')
+
         if new_password != confirm_password:
             message = "Passwords do not match!"
         else:
-            try:
-                patient = Patient.objects.get(email=email)
-                patient.password = new_password
-                patient.save()
-                return render(request, 'home/patient_login.html', {"success": "Password updated successfully! Please login."})
-            except Patient.DoesNotExist:
-                return redirect('forgot_password')
+            if role == 'Patient':
+                user = Patient.objects.get(id=user_id)
+                user.set_password(new_password)
+                login_url = 'patient_login'
+            elif role == 'Doctor':
+                user = Doctor.objects.get(id=user_id)
+                user.set_password(new_password)
+                login_url = 'doctor_login'
+            elif role == 'Admin':
+                user = User.objects.get(id=user_id)
+                user.set_password(new_password)
+                user.save()
+                login_url = 'admin_login'
 
-    return render(request, 'home/reset_password.html', {"message": message, "email": email})
+            # Clean up session
+            for key in ['reset_user_id', 'reset_role', 'reset_email', 'otp_verified']:
+                if key in request.session:
+                    del request.session[key]
+            
+            succ_msg = "Password updated successfully! Please login."
+            if role == 'Patient':
+                return render(request, 'home/patient_login.html', {"success": succ_msg})
+            elif role == 'Doctor':
+                return render(request, 'home/doctor_login.html', {"success": succ_msg})
+            elif role == 'Admin':
+                return render(request, 'home/admin_login.html', {"success": succ_msg})
+
+    return render(request, 'home/reset_password.html', {"message": message})

@@ -12,6 +12,7 @@ class Department(models.Model):
 class Doctor(models.Model):
     name = models.CharField(max_length=100)
     username = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     password = models.CharField(max_length=100, null=True, blank=True)
     specialization = models.CharField(max_length=100)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='doctors')
@@ -21,6 +22,11 @@ class Doctor(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.specialization}"
+
+    def set_password(self, raw_password):
+        from django.contrib.auth.hashers import make_password
+        self.password = make_password(raw_password)
+        self.save()
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
