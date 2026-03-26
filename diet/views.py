@@ -83,3 +83,14 @@ def doctor_approve_plan(request, plan_id):
             plan.save()
     
     return redirect('/admin/diet/dietplan/')
+
+def regenerate_diet_plan(request):
+    patient = get_current_patient(request)
+    if not patient:
+        return redirect('patient_login')
+        
+    from diet.ai_logic import generate_diet_plan_for_patient
+    generate_diet_plan_for_patient(patient.id)
+    
+    # Optional: ensure status is what we want for dashboard
+    return redirect('patient_dashboard')
