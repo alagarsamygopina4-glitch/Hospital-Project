@@ -1,0 +1,10 @@
+name,calories,protein,carbs,fat,category,disease_tag
+Oatmeal,150,5,27,3,breakfast,diabetes
+Eggs,140,12,1,10,breakfast,
+Chicken Breast,165,31,0,3,lunch,bp
+Brown Rice,216,5,45,2,lunch,diabetes
+Broccoli,55,3,11,0,lunch,bp
+Salmon,208,20,0,13,dinner,bp
+Quinoa,222,8,39,3,dinner,diabetes
+Apple,95,0,25,0,snack,bp
+Almonds,164,6,6,14,snack,diabetes

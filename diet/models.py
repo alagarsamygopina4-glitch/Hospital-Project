@@ -2,6 +2,46 @@ from django.db import models
 from django.contrib.auth.models import User
 from home.models import Patient
 
+class PatientProfile(models.Model):
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='profile')
+    age = models.IntegerField(null=True, blank=True)
+    height = models.FloatField(null=True, blank=True, help_text="Height in cm")
+    weight = models.FloatField(null=True, blank=True, help_text="Weight in kg")
+    bmi = models.FloatField(null=True, blank=True)
+    disease = models.CharField(max_length=200, null=True, blank=True, help_text="e.g., diabetes, BP, None")
+    goal = models.CharField(max_length=50, choices=[
+        ('weight_loss', 'Weight Loss'),
+        ('weight_gain', 'Weight Gain'),
+        ('maintenance', 'Maintenance'),
+    ], default='maintenance')
+
+    def save(self, *args, **kwargs):
+        if self.height and self.weight:
+            h_meters = self.height / 100
+            if h_meters > 0:
+                self.bmi = round(self.weight / (h_meters * h_meters), 2)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Profile: {self.patient.username}"
+
+class Food(models.Model):
+    name = models.CharField(max_length=200)
+    calories = models.FloatField()
+    protein = models.FloatField()
+    carbs = models.FloatField()
+    fat = models.FloatField()
+    category = models.CharField(max_length=50, choices=[
+        ('breakfast', 'Breakfast'),
+        ('lunch', 'Lunch'),
+        ('dinner', 'Dinner'),
+        ('snack', 'Snack'),
+    ])
+    disease_tag = models.CharField(max_length=200, blank=True, null=True, help_text="Comma-separated diseases to avoid or suitable diseases")
+
+    def __str__(self):
+        return f"{self.name} ({self.category})"
+
 class DietPlan(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft (AI Generated)'),
