@@ -208,8 +208,9 @@ def forgot_password(request):
                     fail_silently=False,
                 )
             except Exception as e:
-                # Fallback to ignore during development instead of failing hard.
-                pass
+                # Capture an error and format message
+                message = f"Error sending email. Technical details: {str(e)}"
+                return render(request, 'home/forgot_password.html', {"message": message})
             # Store necessary info in session
             request.session['reset_user_id'] = user_id
             request.session['reset_role'] = role
