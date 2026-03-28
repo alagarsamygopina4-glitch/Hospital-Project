@@ -17,7 +17,7 @@ def appointments(request):
         if form.is_valid():
             appointment = form.save(commit=False)
             appointment.status = 'pending'
-            # Token is generated in model.save()
+            # Token is generated automatically based of the current date
             appointment.save()
             
             # Send confirmation email
@@ -28,7 +28,7 @@ def appointments(request):
                 print(f"Email sending failed: {e}")
                 
             messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
-            return redirect('appointment_success', token=appointment.token_number)
+            return redirect('appointment_success', pk=appointment.id)
         else:
             # Form is not valid, re-render with errors
             context = {'form': form, 'doctors': doctors}
@@ -39,15 +39,16 @@ def appointments(request):
     context = {'form': form, 'doctors': doctors}
     return render(request, 'appointments/appointments.html', context)
 
-def appointment_success(request, token):
+def appointment_success(request, pk):
     try:
-        appointment = Appointment.objects.get(token_number=token)
+        appointment = Appointment.objects.get(id=pk)
     except Appointment.DoesNotExist:
         messages.error(request, 'Appointment not found')
         return redirect('appointments')
     
     context = {'appointment': appointment}
     return render(request, 'appointments/appointment_success.html', context)
+
 
 def get_current_patient_email(request):
     return request.session.get('patient_email') # Assuming email is in session or we fetch from patient object

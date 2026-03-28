@@ -47,21 +47,24 @@ class Appointment(models.Model):
     appointment_time = models.TimeField()
     reason = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    token_number = models.CharField(max_length=20, unique=True, editable=False)
+    token_number = models.CharField(max_length=20, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         ordering = ['-appointment_date']
+        unique_together = ('appointment_date', 'token_number')
     
     def save(self, *args, **kwargs):
         if not self.token_number:
-            # Generate a unique token
-            while True:
-                token = 'TKN-' + str(uuid.uuid4().hex[:8]).upper()
-                if not Appointment.objects.filter(token_number=token).exists():
-                    self.token_number = token
-                    break
+            # Generate local token number for the day
+            last_appointment = Appointment.objects.filter(appointment_date=self.appointment_date).order_by('id').last()
+            if last_appointment and last_appointment.token_number.isdigit():
+                new_token = int(last_appointment.token_number) + 1
+            else:
+                new_token = 1
+            self.token_number = str(new_token)
         super().save(*args, **kwargs)
+
     
     def __str__(self):
         return f"{self.patient_name} - {self.doctor.name if self.doctor else 'No Doctor'} - {self.appointment_date} (Token: {self.token_number})"
