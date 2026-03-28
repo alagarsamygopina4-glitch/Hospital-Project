@@ -93,12 +93,15 @@ WSGI_APPLICATION = 'hospital_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+       'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hospital_db_yzaw',
         'USER': 'hospital_user',
-        'PASSWORD': 'your_password_here',
-        'HOST': 'dpg-d73p078gjchc73ar4mtg-a',
+        'PASSWORD': 'DK8Ts98oNUgZClkPDjEHBnI5qA9C5Zv7',
+        'HOST': 'dpg-d73p078gjchc73ar4mtg-a.oregon-postgres.render.com',
         'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
  }
 
