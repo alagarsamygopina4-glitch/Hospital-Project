@@ -15,37 +15,24 @@ def appointments(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.status = 'pending'
+            # Token is generated in model.save()
+            appointment.save()
+            
+            # Send confirmation email
             try:
-                appointment = form.save(commit=False)
-                appointment.status = 'pending'
-                appointment.save() # This triggers the token generation in models.py
-                
-                # Double-check token generation
-                if not appointment.token_number:
-                    import uuid
-                    appointment.token_number = str(uuid.uuid4())[:8].upper()
-                    appointment.save()
-
-                # Send confirmation email with token (fail silently)
-                try:
-                    send_appointment_confirmation_email(appointment)
-                except Exception as email_err:
-                    print(f"Email Error (non-critical): {email_err}")
-                
-                messages.success(request, f'✓ Appointment booked successfully! Token: {appointment.token_number}')
-                return redirect('appointment_success', token=appointment.token_number)
+                send_appointment_confirmation_email(appointment)
             except Exception as e:
-                import traceback
-                print("CRITICAL ERROR DURING APPOINTMENT SAVE:")
-                print(traceback.format_exc())
-                # Return a visible error instead of a generic 500
-                from django.http import HttpResponse
-                return HttpResponse(f"Error saving appointment: {str(e)}. Please check console logs.", status=500)
+                # Log email error but don't stop the success redirect
+                print(f"Email sending failed: {e}")
+                
+            messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
+            return redirect('appointment_success', token=appointment.token_number)
         else:
-            # Form is invalid, re-render form with errors
+            # Form is not valid, re-render with errors
             context = {'form': form, 'doctors': doctors}
             return render(request, 'appointments/appointments.html', context)
-
     else:
         form = AppointmentForm()
     
@@ -54,19 +41,12 @@ def appointments(request):
 
 def appointment_success(request, token):
     try:
-        # Search for appointment by token
         appointment = Appointment.objects.get(token_number=token)
     except Appointment.DoesNotExist:
-        # Fallback search if something went wrong with the case or lookup
-        appointment = Appointment.objects.filter(token_number__iexact=token).first()
-        if not appointment:
-            messages.error(request, 'Appointment not found in our records.')
-            return redirect('appointments')
+        messages.error(request, 'Appointment not found')
+        return redirect('appointments')
     
-    context = {
-        'appointment': appointment,
-        'token_from_url': token # Pass the raw token as fallback
-    }
+    context = {'appointment': appointment}
     return render(request, 'appointments/appointment_success.html', context)
 
 def get_current_patient_email(request):

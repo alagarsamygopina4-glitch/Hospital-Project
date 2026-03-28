@@ -55,11 +55,11 @@ class Appointment(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.token_number:
-            # Import within method if needed, but uuid is at top level in this file
+            # Generate a unique token
             while True:
-                new_token = str(uuid.uuid4())[:8].upper()
-                if not Appointment.objects.filter(token_number=new_token).exists():
-                    self.token_number = new_token
+                token = 'TKN-' + str(uuid.uuid4().hex[:8]).upper()
+                if not Appointment.objects.filter(token_number=token).exists():
+                    self.token_number = token
                     break
         super().save(*args, **kwargs)
     
