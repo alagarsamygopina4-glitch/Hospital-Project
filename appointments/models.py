@@ -55,7 +55,12 @@ class Appointment(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.token_number:
-            self.token_number = str(uuid.uuid4())[:8].upper()
+            # Import within method if needed, but uuid is at top level in this file
+            while True:
+                new_token = str(uuid.uuid4())[:8].upper()
+                if not Appointment.objects.filter(token_number=new_token).exists():
+                    self.token_number = new_token
+                    break
         super().save(*args, **kwargs)
     
     def __str__(self):

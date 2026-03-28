@@ -13,25 +13,23 @@ def appointments(request):
     doctors = Doctor.objects.all()
     
     if request.method == 'POST':
-        try:
-            form = AppointmentForm(request.POST)
-            if form.is_valid():
-                appointment = form.save(commit=False)
-                appointment.status = 'pending'
-                appointment.save()
-                
-                # Send confirmation email with token
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.status = 'pending'
+            appointment.save()
+            
+            # Send confirmation email with token
+            try:
                 send_appointment_confirmation_email(appointment)
-                
-                messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}. Check your email for confirmation.')
-                return redirect('appointment_success', token=appointment.token_number)
-            else:
-                context = {'form': form, 'doctors': doctors}
-                return render(request, 'appointments/appointments.html', context)
-        except Exception as e:
-            import traceback
-            from django.http import HttpResponse
-            return HttpResponse(f"500 Internal Server Error Traceback:<br><pre>{traceback.format_exc()}</pre>", status=500)
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+            
+            messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
+            return redirect('appointment_success', token=appointment.token_number)
+        else:
+            context = {'form': form, 'doctors': doctors}
+            return render(request, 'appointments/appointments.html', context)
 
     else:
         form = AppointmentForm()
