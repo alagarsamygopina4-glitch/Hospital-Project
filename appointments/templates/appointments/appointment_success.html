@@ -1,48 +1,52 @@
 {% extends 'home/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0 bg-light">
-                <div class="card-body p-5 text-center">
-                    <div class="mb-4">
-                        <h1 style="font-size: 60px;">✅</h1>
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; background-color: #fff;">
+                <div class="card-body p-0 text-center">
+                    
+                    <div class="pt-5 px-4">
+                        <h2 class="mb-2" style="font-weight: 600; color: #2c3e50;">Appointment Booked Successfully!</h2>
+                        <p class="text-muted mb-4" style="font-size: 1.1rem;">Your appointment has been confirmed.</p>
                     </div>
                     
-                    <h2 class="mb-3">Appointment Booked Successfully!</h2>
-                    <p class="lead text-muted mb-4">Your appointment has been confirmed.</p>
-                    
-                    <div class="alert alert-success mb-4">
-                        <h3 class="text-success">Your Token Number</h3>
-                        <h1 class="display-4 text-success">{{ appointment.token_number }}</h1>
-                        <p class="text-muted">Save this token for your records</p>
+                    <div class="mx-4 mb-4" style="background-color: #d1ebd6; padding: 35px 20px; border-radius: 8px;">
+                        <h4 style="color: #0d6832; font-weight: 500; font-size: 1.3rem;">Your Token Number</h4>
+                        <h1 style="font-size: 3.5rem; color: #2e8b57; font-weight: 300; letter-spacing: 2px;">{{ appointment.token_number }}</h1>
+                        <p style="color: #63856d; font-size: 0.95rem; margin-bottom: 0;">Save this token for your records</p>
                     </div>
                     
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">Appointment Details</h5>
-                            <p><strong>Name:</strong> {{ appointment.patient_name }}</p>
-                            <p><strong>Email:</strong> {{ appointment.patient_email }}</p>
-                            <p><strong>Phone:</strong> {{ appointment.patient_phone }}</p>
-                            {% if appointment.doctor %}
-                            <p><strong>Doctor:</strong> {{ appointment.doctor.name }}</p>
-                            {% else %}
-                            <p><strong>Doctor:</strong> <span class="badge bg-warning">To be assigned</span></p>
-                            {% endif %}
-                            <p><strong>Date:</strong> {{ appointment.appointment_date }}</p>
-                            <p><strong>Time:</strong> {{ appointment.appointment_time }}</p>
-                            <p><strong>Reason:</strong> {{ appointment.reason }}</p>
+                    <div class="card mx-4 mb-4 border" style="border-radius: 8px; border-color: #e9ecef !important; box-shadow: none;">
+                        <div class="card-body p-4">
+                            <h5 style="font-weight: 600; color: #2c3e50; margin-bottom: 25px;">Appointment Details</h5>
+                            <div style="font-size: 1rem; color: #212529;">
+                                <p class="mb-3"><strong>Name:</strong> {{ appointment.patient_name }}</p>
+                                <p class="mb-3"><strong>Email:</strong> {{ appointment.patient_email }}</p>
+                                <p class="mb-3"><strong>Phone:</strong> {{ appointment.patient_phone }}</p>
+                                {% if appointment.doctor %}
+                                <p class="mb-3"><strong>Doctor:</strong> {{ appointment.doctor.name }}</p>
+                                {% else %}
+                                <p class="mb-3"><strong>Doctor:</strong> <span class="badge bg-warning text-white px-2 py-1" style="border-radius: 4px; font-weight: normal;">To be assigned</span></p>
+                                {% endif %}
+                                <p class="mb-3"><strong>Date:</strong> {{ appointment.appointment_date }}</p>
+                                <p class="mb-3"><strong>Time:</strong> {{ appointment.appointment_time }}</p>
+                                <p class="mb-0"><strong>Reason:</strong> {{ appointment.reason }}</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="alert alert-info mb-4">
-                        <p>✉️ A confirmation email has been sent to <strong>{{ appointment.patient_email }}</strong></p>
+                    <div class="mx-4 mb-4" style="background-color: #d8f4fb; padding: 18px; border-radius: 6px;">
+                        <p class="mb-0" style="color: #0c5460; font-size: 0.95rem;">✉️ A confirmation email has been sent to <strong>{{ appointment.patient_email }}</strong></p>
                     </div>
                     
-                    <a href="{% url 'appointments' %}" class="btn btn-primary btn-lg">
-                        Book Another Appointment
-                    </a>
+                    <div class="pb-5">
+                        <a href="{% url 'appointments' %}" class="btn btn-primary btn-lg" style="border-radius: 6px; padding: 10px 30px; font-size: 1rem; background-color: #0d6efd; border: none; font-weight: 500;">
+                            Book Another Appointment
+                        </a>
+                    </div>
+                    
                 </div>
             </div>
         </div>
