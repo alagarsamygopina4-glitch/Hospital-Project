@@ -52,17 +52,16 @@ class Appointment(models.Model):
     
     class Meta:
         ordering = ['-appointment_date']
-        unique_together = ('appointment_date', 'token_number')
+    
     
     def save(self, *args, **kwargs):
         if not self.token_number:
-            # Generate local token number for the day
-            last_appointment = Appointment.objects.filter(appointment_date=self.appointment_date).order_by('id').last()
-            if last_appointment and last_appointment.token_number.isdigit():
-                new_token = int(last_appointment.token_number) + 1
-            else:
-                new_token = 1
-            self.token_number = str(new_token)
+            count = Appointment.objects.filter(
+                appointment_date=self.appointment_date
+            ).count()
+
+            self.token_number = str(count + 1)
+
         super().save(*args, **kwargs)
 
     
