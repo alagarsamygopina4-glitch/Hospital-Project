@@ -56,21 +56,20 @@ class Appointment(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.token_number:
-            # Get date string (e.g., 20260329)
-            date_prefix = self.appointment_date.strftime('%Y%m%d') if self.appointment_date else "00000000"
-            
-            # Count existing appointments for this date to get a sequence
+            # Ensure appointment_date is set (it should be from the form)
+            if not self.appointment_date:
+                from django.utils import timezone
+                self.appointment_date = timezone.now().date()
+
+            # Generate a unique token
             count = Appointment.objects.filter(
                 appointment_date=self.appointment_date
             ).count()
 
-            # Generate a unique token using: DATE + SEQUENCE + RANDOM_SUFFIX
-            # Random suffix helps avoid collisions if multiple saves happen simultaneously
-            import uuid
-            unique_suffix = uuid.uuid4().hex[:4].upper()
-            
-            # Example: 20260329-1-A4B2
-            self.token_number = f"{date_prefix}-{count + 1}-{unique_suffix}"
+            # Format: YYYYMMDD-COUNT (e.g., 20260329-01)
+            # This is more robust and helps avoid simple collisions
+            date_str = self.appointment_date.strftime('%Y%m%d')
+            self.token_number = f"T{date_str}{count + 1:02d}"
 
         super().save(*args, **kwargs)
 
