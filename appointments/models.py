@@ -47,7 +47,7 @@ class Appointment(models.Model):
     appointment_time = models.TimeField()
     reason = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    token_number = models.CharField(max_length=20, editable=False)
+    token_number = models.CharField(max_length=20, editable=False, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -56,11 +56,21 @@ class Appointment(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.token_number:
+            # Get date string (e.g., 20260329)
+            date_prefix = self.appointment_date.strftime('%Y%m%d') if self.appointment_date else "00000000"
+            
+            # Count existing appointments for this date to get a sequence
             count = Appointment.objects.filter(
                 appointment_date=self.appointment_date
             ).count()
 
-            self.token_number = str(count + 1)
+            # Generate a unique token using: DATE + SEQUENCE + RANDOM_SUFFIX
+            # Random suffix helps avoid collisions if multiple saves happen simultaneously
+            import uuid
+            unique_suffix = uuid.uuid4().hex[:4].upper()
+            
+            # Example: 20260329-1-A4B2
+            self.token_number = f"{date_prefix}-{count + 1}-{unique_suffix}"
 
         super().save(*args, **kwargs)
 
