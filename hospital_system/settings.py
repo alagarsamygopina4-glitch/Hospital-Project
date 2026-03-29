@@ -91,19 +91,23 @@ WSGI_APPLICATION = 'hospital_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Check if we are running on Render (Render sets the RENDER environment variable to 'true')
+IS_RENDER = os.environ.get('RENDER', 'False').lower() == 'true'
+
 DATABASES = {
     'default': {
-       'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hospital_db_yzaw',
         'USER': 'hospital_user',
         'PASSWORD': 'DK8Ts98oNUgZClkPDjEHBnI5qA9C5Zv7',
-        'HOST': 'dpg-d73p078gjchc73ar4mtg-a.oregon-postgres.render.com',
+        # Use Internal Host on Render (-a), External Host locally (no -a)
+        'HOST': 'dpg-d73p078gjchc73ar4mtg-a.oregon-postgres.render.com' if IS_RENDER else 'dpg-d73p078gjchc73ar4mtg.oregon-postgres.render.com',
         'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
         },
     }
- }
+}
 
 
 # Example Production Database Configuration (MySQL)
