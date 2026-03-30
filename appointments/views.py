@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
 from .models import Appointment, Doctor
 from .forms import AppointmentForm
 from .emails import (
@@ -15,20 +16,47 @@ def appointments(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            appointment = form.save(commit=False)
-            appointment.status = 'pending'
-            # Token is generated automatically based of the current date
-            appointment.save()
-            
-            # Send confirmation email
             try:
-                send_appointment_confirmation_email(appointment)
+                # Use a transaction to ensure no two people get the same token simultaneously
+                with transaction.atomic():
+                    appointment = form.save(commit=False)
+                    appointment.status = 'pending'
+                    
+                    # Ensure appointment_date is set (it should be from the form)
+                    if not appointment.appointment_date:
+                        from django.utils import timezone
+                        appointment.appointment_date = timezone.now().date()
+                    
+                    # 1. Sequential Logic: Get the count for this specific day
+                    # This finds how many appointments were BOOKED before this one on today
+                    day_count = Appointment.objects.filter(
+                        appointment_date=appointment.appointment_date
+                    ).count()
+                    
+                    # 2. Assign the next number (e.g., if there are 2, this is the 3rd)
+                    token_number_only = day_count + 1
+                    
+                    # 3. Format: T + Date + Number (e.g., T2026033005)
+                    date_str = appointment.appointment_date.strftime('%Y%m%d')
+                    appointment.token_number = f"T{date_str}{token_number_only:02d}"
+                    
+                    # 4. Save to the database
+                    appointment.save()
+
+                    # Send confirmation email (move outside transaction if you have heavy email traffic)
+                    try:
+                        send_appointment_confirmation_email(appointment)
+                    except Exception as email_err:
+                        # Log but don't crash the user's booking success
+                        print(f"Email failure: {email_err}")
+
+                    messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
+                    return redirect('appointment_success', pk=appointment.id)
             except Exception as e:
-                # Log email error but don't stop the success redirect
-                print(f"Email sending failed: {e}")
-                
-            messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
-            return redirect('appointment_success', pk=appointment.id)
+                # Catch any unexpected errors (database, etc.) and prevent 500
+                print(f"Unexpected booking failure: {e}")
+                messages.error(request, "Something went wrong during booking. Please try again.")
+                # Fallthrough to re-render form
         else:
             # Form is not valid, re-render with errors
             context = {'form': form, 'doctors': doctors}

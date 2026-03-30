@@ -55,22 +55,10 @@ class Appointment(models.Model):
     
     
     def save(self, *args, **kwargs):
-        if not self.token_number:
-            # Ensure appointment_date is set (it should be from the form)
-            if not self.appointment_date:
-                from django.utils import timezone
-                self.appointment_date = timezone.now().date()
-
-            # Generate a unique token
-            count = Appointment.objects.filter(
-                appointment_date=self.appointment_date
-            ).count()
-
-            # Format: YYYYMMDD-COUNT (e.g., 20260329-01)
-            # This is more robust and helps avoid simple collisions
-            date_str = self.appointment_date.strftime('%Y%m%d')
-            self.token_number = f"T{date_str}{count + 1:02d}"
-
+        # Ensure appointment_date is never null to prevent errors in queries
+        if not self.appointment_date:
+            from django.utils import timezone
+            self.appointment_date = timezone.now().date()
         super().save(*args, **kwargs)
 
     
