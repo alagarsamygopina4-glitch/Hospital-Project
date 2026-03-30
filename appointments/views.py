@@ -175,17 +175,19 @@ def setup_database(request):
     except Exception as e:
         output.append(f"❌ Migration error: {str(e)}")
 
-    # 2. Create or Update Superuser
-    user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@example.com'})
+    # 2. Create or Update Superuser (FORCED)
+    user, created = User.objects.get_or_create(username='admin')
+    user.email = 'admin@example.com'
     user.set_password('admin@123')
     user.is_superuser = True
     user.is_staff = True
+    user.is_active = True
     user.save()
     
     if created:
-        output.append("✅ Superuser 'admin' created (PW: admin@123)")
+        output.append("✅ Superuser 'admin' created (Username: admin, PW: admin@123)")
     else:
-        output.append("✅ Superuser 'admin' password UPDATED (PW: admin@123)")
+        output.append("🔄 Superuser 'admin' details REFRESHED (Username: admin, PW: admin@123)")
 
     # 3. Seed Departments and Doctors
     deps = [
