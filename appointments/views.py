@@ -1,3 +1,4 @@
+import threading
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -39,10 +40,8 @@ def appointments(request):
                         
                         appointment.save()
 
-                        try:
-                            send_appointment_confirmation_email(appointment)
-                        except Exception as email_err:
-                            print(f"Email failure: {email_err}")
+                        # Send confirmation email in the background to prevent Timeout
+                        threading.Thread(target=send_appointment_confirmation_email, args=(appointment,)).start()
 
                         messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
                         return redirect('appointment_success', pk=appointment.id)
