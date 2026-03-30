@@ -1,4 +1,5 @@
 import threading
+import traceback
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -10,6 +11,7 @@ from .emails import (
     send_appointment_rescheduled_email,
     send_appointment_cancelled_email,
 )
+from django.http import HttpResponse
 
 def appointments(request):
     try:
@@ -46,8 +48,7 @@ def appointments(request):
                         messages.success(request, f'✓ Appointment booked successfully! Your Token: {appointment.token_number}')
                         return redirect('appointment_success', pk=appointment.id)
                 except Exception as e:
-                    print(f"Inner booking failure: {e}")
-                    messages.error(request, f"Submission error: {str(e)}")
+                    return HttpResponse(f"<h2>Submission Error</h2><pre>{traceback.format_exc()}</pre>")
             else:
                 context = {'form': form, 'doctors': doctors}
                 return render(request, 'appointments/appointments.html', context)
@@ -57,8 +58,7 @@ def appointments(request):
         context = {'form': form, 'doctors': doctors}
         return render(request, 'appointments/appointments.html', context)
     except Exception as global_e:
-        from django.http import HttpResponse
-        return HttpResponse(f"<h2 style='color:red;'>System Error: {str(global_e)}</h2><p>Check if your database exists and migrations are run.</p>")
+        return HttpResponse(f"<h2>Global Page Error</h2><pre>{traceback.format_exc()}</pre>")
 
 def appointment_success(request, pk):
     try:
