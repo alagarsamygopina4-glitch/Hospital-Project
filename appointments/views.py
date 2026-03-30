@@ -158,3 +158,67 @@ def doctor_dashboard(request):
         'appointments': doctor_appointments
     }
     return render(request, 'appointments/doctor_dashboard.html', context)
+
+def setup_database(request):
+    """Temporary view to initialize the Render database without a shell."""
+    from django.http import HttpResponse
+    from django.contrib.auth.models import User
+    from django.core.management import call_command
+    from .models import Doctor, Department
+
+    output = []
+
+    # 1. Run Migrations Automatically
+    try:
+        call_command('migrate')
+        output.append("✅ All migrations applied successfully")
+    except Exception as e:
+        output.append(f"❌ Migration error: {str(e)}")
+
+    # 2. Create Superuser
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'adminpassword123')
+        output.append("✅ Superuser 'admin' created (PW: adminpassword123)")
+    else:
+        output.append("ℹ️ Superuser 'admin' already exists")
+
+    # 3. Seed Departments and Doctors
+    deps = [
+        ("Cardiology", "Heart and blood vessel health"),
+        ("Pediatrics", "Medical care for infants, children, and adolescents"),
+        ("Neurology", "Disorders of the nervous system"),
+        ("Orthopedics", "Musculoskeletal system issues"),
+        ("Dermatology", "Skin, hair, and nail conditions"),
+        ("General Medicine", "Primary healthcare and general checkups")
+    ]
+    
+    for name, desc in deps:
+        Department.objects.get_or_create(name=name, defaults={'description': desc})
+    output.append(f"✅ {len(deps)} Departments created/verified")
+
+    doctors_data = [
+        ("Dr. John Smith", "johnsmith", "Cardiology", "Cardiologist"),
+        ("Dr. Sarah Wilson", "sarahwilson", "Pediatrics", "Pediatrician"),
+        ("Dr. Michael Brown", "michaelbrown", "Neurology", "Neurologist"),
+        ("Dr. Emily Davis", "emilydavis", "Orthopedics", "Orthopedic Surgeon"),
+        ("Dr. Robert Lee", "robertlee", "Dermatology", "Dermatologist"),
+        ("Dr. Alice Johnson", "alicejohnson", "General Medicine", "General Physician"),
+    ]
+
+    for name, user, dep_name, spec in doctors_data:
+        dep = Department.objects.get(name=dep_name)
+        Doctor.objects.get_or_create(
+            username=user,
+            defaults={
+                'name': name,
+                'password': 'password123',
+                'specialization': spec,
+                'department': dep,
+                'available_days': "Monday, Wednesday, Friday",
+                'available_time_start': "09:00",
+                'available_time_end': "17:00"
+            }
+        )
+    output.append(f"✅ {len(doctors_data)} Doctors created/verified")
+
+    return HttpResponse("<br>".join(output) + "<br><br><b>Success! You can now log into /admin and also see doctors in the dropdown.</b>")
