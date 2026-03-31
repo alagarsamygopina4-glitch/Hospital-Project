@@ -89,7 +89,10 @@ def regenerate_diet_plan(request):
     if not patient:
         return redirect('patient_login')
         
-    if not hasattr(patient, 'health_profile'):
+    # Safer check for health profile
+    try:
+        profile = patient.health_profile
+    except (PatientHealthProfile.DoesNotExist, Exception):
         messages.warning(request, "Please complete your Health Profile first.")
         return redirect('health_profile_form')
 
@@ -98,8 +101,7 @@ def regenerate_diet_plan(request):
         generate_7_day_diet_plan(patient)
         messages.success(request, "Diet plan generated successfully based on your profile!")
     except Exception as e:
-        messages.error(request, f"Error generating plan: {str(e)}")
-        # If it failed, we should probably redirect back
+        messages.error(request, f"Error generating diet plan: {e}")
     
     return redirect('patient_dashboard')
 
@@ -108,7 +110,16 @@ def health_profile_form(request):
     if not patient:
         return redirect('patient_login')
         
-    profile, created = PatientHealthProfile.objects.get_or_create(patient=patient)
+    # Ensure profile exists without crashing on missing required fields in get_or_create
+    try:
+        profile = PatientHealthProfile.objects.get(patient=patient)
+    except PatientHealthProfile.DoesNotExist:
+        profile = PatientHealthProfile(
+            patient=patient, 
+            height=patient.height if patient.height else 170.0,
+            weight=patient.weight if patient.weight else 70.0
+        )
+        profile.save()
 
     if request.method == 'POST':
         # Parse Personal & Body Metrics
