@@ -82,131 +82,128 @@
                         <button class="btn btn-light btn-sm ms-2 border px-3">Search</button>
                     </div>
 
-                    <div class="table-responsive shadow-sm border rounded">
-                        <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem; min-width: 800px;">
-                            <thead style="background-color: #f8f8f8; color: #666;">
-                                <tr>
-                                    <th class="ps-3 py-2"><input type="checkbox"></th>
-                                    <th class="py-2 text-uppercase">Token Number</th>
-                                    <th class="py-2 text-uppercase">Patient</th>
-                                    <th class="py-2 text-uppercase">Doctor</th>
-                                    <th class="py-2 text-uppercase">Date</th>
-                                    <th class="py-2 text-uppercase">Time</th>
-                                    <th class="py-2 pe-3 text-uppercase text-end">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for appt in appointments %}
-                                <tr style="cursor: pointer;">
-                                    <td class="ps-3"><input type="checkbox"></td>
-                                    <td><a href="#" class="text-primary text-decoration-none fw-bold">{{ appt.token_number }}</a></td>
-                                    <td>{{ appt.patient_name }} ({{ appt.patient_email }})</td>
-                                    <td>{{ appt.doctor.name }}</td>
-                                    <td>{{ appt.appointment_date }}</td>
-                                    <td>{{ appt.appointment_time }}</td>
-                                    <td class="pe-3 text-end">
-                                        <form action="{% url 'update_appointment_status' %}" method="POST" class="d-inline-block">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="appointment_id" value="{{ appt.id }}">
-                                            <select name="status" onchange="this.form.submit()" 
-                                                class="form-select form-select-sm shadow-none" 
-                                                style="font-size: 0.75rem; width: auto; background-color: {% if appt.status == 'pending' %}#fff3cd{% elif appt.status == 'completed' %}#d1e7dd{% elif appt.status == 'cancelled' %}#f8d7da{% else %}#e2e3e5{% endif %};">
-                                                <option value="pending" {% if appt.status == 'pending' %}selected{% endif %}>PENDING</option>
-                                                <option value="confirmed" {% if appt.status == 'confirmed' %}selected{% endif %}>CONFIRMED</option>
-                                                <option value="completed" {% if appt.status == 'completed' %}selected{% endif %}>COMPLETED</option>
-                                                <option value="cancelled" {% if appt.status == 'cancelled' %}selected{% endif %}>CANCELLED</option>
-                                            </select>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">No appointments found.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="p-2 px-3 border-top bg-light small fw-bold text-muted border border-top-0 rounded-bottom shadow-sm">
-                        {{ appointments|length }} appointments
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                <thead style="background-color: #f8f8f8; color: #666;">
+                                    <tr>
+                                        <th class="ps-3 py-2"><input type="checkbox"></th>
+                                        <th class="py-2 text-uppercase">Token Number</th>
+                                        <th class="py-2 text-uppercase">Patient</th>
+                                        <th class="py-2 text-uppercase">Doctor</th>
+                                        <th class="py-2 text-uppercase">Date</th>
+                                        <th class="py-2 text-uppercase">Time</th>
+                                        <th class="py-2 pe-3 text-uppercase text-end">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appt in appointments %}
+                                    <tr style="cursor: pointer;">
+                                        <td class="ps-3"><input type="checkbox"></td>
+                                        <td><a href="#" class="text-primary text-decoration-none fw-bold">{{ appt.token_number }}</a></td>
+                                        <td>{{ appt.patient_name }} ({{ appt.patient_email }})</td>
+                                        <td>{{ appt.doctor.name }}</td>
+                                        <td>{{ appt.appointment_date }}</td>
+                                        <td>{{ appt.appointment_time }}</td>
+                                        <td class="pe-3 text-end">
+                                            <span
+                                                class="badge {% if appt.status == 'pending' %}bg-warning text-dark{% elif appt.status == 'confirmed' %}bg-info text-white{% else %}bg-secondary{% endif %}"
+                                                style="font-size: 0.7rem; font-weight: 500; border-radius: 4px; padding: 3px 8px;">{{ appt.status|upper }}</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">No appointments found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="p-2 px-3 border-top bg-light small fw-bold text-muted">
+                                {{ appointments|length }} appointments
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Patients Section (Hidden by default) -->
                 <div id="patients-sec" class="admin-section d-none">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 text-muted" style="font-size: 1.1rem;">Select patient to view details</h5>
                         <button class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm"
                             style="background-color: #999; border: none; font-size: 0.8rem;">REGISTER NEW PATIENT
                             +</button>
                     </div>
 
-                    <div class="table-responsive shadow-sm border rounded">
-                        <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem; min-width: 700px;">
-                            <thead style="background-color: #f8f8f8; color: #666;">
-                                <tr>
-                                    <th class="ps-3 py-2"><input type="checkbox"></th>
-                                    <th class="py-2 text-uppercase">Username</th>
-                                    <th class="py-2 text-uppercase">Email Address</th>
-                                    <th class="py-2 text-uppercase">Registration Date</th>
-                                    <th class="py-2 pe-3 text-uppercase text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for patient in patients %}
-                                <tr>
-                                    <td class="ps-3"><input type="checkbox"></td>
-                                    <td><a href="#" class="text-primary text-decoration-none fw-bold">{{ patient.username }}</a></td>
-                                    <td>{{ patient.email }}</td>
-                                    <td>{{ patient.created_at }}</td>
-                                    <td class="pe-3 text-end">
-                                        <button
-                                            class="btn btn-link text-primary p-0 btn-sm fw-bold text-decoration-none">View
-                                            Complete Profile</button>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">No patients registered.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="p-2 px-3 border-top bg-light small fw-bold text-muted border border-top-0 rounded-bottom shadow-sm">
-                        {{ patients|length }} patients
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                <thead style="background-color: #f8f8f8; color: #666;">
+                                    <tr>
+                                        <th class="ps-3 py-2"><input type="checkbox"></th>
+                                        <th class="py-2 text-uppercase">Username</th>
+                                        <th class="py-2 text-uppercase">Email Address</th>
+                                        <th class="py-2 text-uppercase">Registration Date</th>
+                                        <th class="py-2 pe-3 text-uppercase text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in patients %}
+                                    <tr>
+                                        <td class="ps-3"><input type="checkbox"></td>
+                                        <td><a href="#" class="text-primary text-decoration-none fw-bold">{{ patient.username }}</a></td>
+                                        <td>{{ patient.email }}</td>
+                                        <td>{{ patient.created_at }}</td>
+                                        <td class="pe-3 text-end">
+                                            <button
+                                                class="btn btn-link text-primary p-0 btn-sm fw-bold text-decoration-none">View
+                                                Complete Profile</button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No patients registered.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="p-2 px-3 border-top bg-light small fw-bold text-muted">
+                                {{ patients|length }} patients
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Doctors Section (Hidden by default) -->
                 <div id="doctors-sec" class="admin-section d-none">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 gap-2">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 text-muted" style="font-size: 1.1rem;">Active Medical Staff</h5>
                         <button class="btn btn-secondary btn-sm rounded-pill px-3 shadow-sm"
                             style="background-color: #999; border: none; font-size: 0.8rem;">ADD DOCTOR +</button>
                     </div>
 
-                    <div class="table-responsive shadow-sm border rounded">
-                        <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem; min-width: 800px;">
-                            <thead style="background-color: #f8f8f8; color: #666;">
-                                <tr>
-                                    <th class="ps-3 py-2">NAME</th>
-                                    <th class="py-2">SPECIALIZATION</th>
-                                    <th class="py-2">AVAILABILITY</th>
-                                    <th class="py-2 pe-3 text-end">USERNAME</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for doc in doctors %}
-                                <tr>
-                                    <td class="ps-3 fw-bold text-dark">{{ doc.name }}</td>
-                                    <td>{{ doc.specialization }}</td>
-                                    <td>{{ doc.available_days }} ({{ doc.available_time_start }} - {{ doc.available_time_end }})</td>
-                                    <td class="pe-3 text-end text-muted">{{ doc.username }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                <thead style="background-color: #f8f8f8; color: #666;">
+                                    <tr>
+                                        <th class="ps-3 py-2">NAME</th>
+                                        <th class="py-2">SPECIALIZATION</th>
+                                        <th class="py-2">AVAILABILITY</th>
+                                        <th class="py-2 pe-3 text-end">USERNAME</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in doctors %}
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-dark">{{ doc.name }}</td>
+                                        <td>{{ doc.specialization }}</td>
+                                        <td>{{ doc.available_days }} ({{ doc.available_time_start }} - {{ doc.available_time_end }})</td>
+                                        <td class="pe-3 text-end text-muted">{{ doc.username }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -232,10 +229,8 @@
         });
 
         // Find the clicked item and mark active
-        if (event && event.currentTarget) {
-            event.currentTarget.classList.add('active');
-            event.currentTarget.classList.add('bg-light');
-        }
+        event.currentTarget.classList.add('active');
+        event.currentTarget.classList.add('bg-light');
     }
 </script>
 
@@ -264,44 +259,6 @@
 
     .sidebar-item.active {
         border-left: 4px solid #79aec8;
-    }
-
-    /* Mobile Responsive Fixes */
-    @media (max-width: 768px) {
-        .admin-header {
-            flex-direction: column;
-            text-align: center;
-            padding: 1rem !important;
-        }
-        
-        .admin-user-info {
-            margin-top: 0.5rem;
-            line-height: 1.8;
-            text-align: center;
-        }
-
-        .admin-user-info ms-2 {
-            margin-left: 0 !important;
-        }
-
-        .search-row {
-            flex-direction: column;
-            width: 100% !important;
-        }
-
-        .search-row .input-group {
-            width: 100% !important;
-            margin-bottom: 0.5rem;
-        }
-
-        .search-row button {
-            width: 100%;
-            margin-left: 0 !important;
-        }
-    }
-
-    .table-responsive {
-        -webkit-overflow-scrolling: touch;
     }
 </style>
 {% endblock %}

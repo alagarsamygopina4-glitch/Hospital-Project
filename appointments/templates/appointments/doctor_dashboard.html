@@ -57,35 +57,23 @@
                             </td>
                             <td class="align-middle">
                                 {% if appointment.status == 'pending' %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                                {% elif appointment.status == 'confirmed' %}
-                                <span class="badge bg-info text-white">Confirmed</span>
+                                <span class="badge bg-warning text-dark">Waiting / Pending</span>
                                 {% elif appointment.status == 'completed' %}
-                                <span class="badge bg-success text-white">Completed</span>
+                                <span class="badge bg-success">Completed</span>
                                 {% elif appointment.status == 'cancelled' %}
-                                <span class="badge bg-danger text-white">Cancelled</span>
+                                <span class="badge bg-danger">Cancelled</span>
                                 {% else %}
-                                <span class="badge bg-secondary text-white">{{ appointment.status|capfirst }}</span>
+                                <span class="badge bg-secondary">{{ appointment.get_status_display }}</span>
                                 {% endif %}
                             </td>
                             <td class="pe-4 align-middle">
                                 <div class="btn-group btn-group-sm">
-                                    <form action="{% url 'update_appointment_status' %}" method="POST" class="d-inline">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="appointment_id" value="{{ appointment.id }}">
-                                        <input type="hidden" name="status" value="completed">
-                                        <button type="submit" class="btn btn-outline-success" title="Mark as Completed" {% if appointment.status == 'completed' %}disabled{% endif %}>
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                    </form>
-                                    <form action="{% url 'update_appointment_status' %}" method="POST" class="d-inline ms-1">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="appointment_id" value="{{ appointment.id }}">
-                                        <input type="hidden" name="status" value="cancelled">
-                                        <button type="submit" class="btn btn-outline-danger" title="Cancel Appointment" {% if appointment.status == 'cancelled' or appointment.status == 'completed' %}disabled{% endif %}>
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </form>
+                                    <button class="btn btn-outline-primary" title="View Patient History">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="Mark as Completed">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>

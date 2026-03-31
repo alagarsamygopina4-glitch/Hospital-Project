@@ -30,8 +30,7 @@ class Doctor(models.Model):
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('confirmed', 'Confirmed'),
+        ('pending', 'Pending / Waiting'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]

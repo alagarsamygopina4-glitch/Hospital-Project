@@ -15,7 +15,8 @@ class DoctorAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = ['token_number', 'patient_name', 'patient_email', 'doctor', 'appointment_date', 'appointment_time', 'status']
-    list_editable = ['status']
+    list_editable = ['status']  # This enables the dropdown in the list view
+    list_display_links = ['token_number', 'patient_name']  # These will be clickable to open the detail view
     list_filter = ['status', 'appointment_date', 'doctor']
     search_fields = ['patient_name', 'patient_email', 'doctor__name', 'token_number']
     readonly_fields = ['token_number', 'created_at']

@@ -229,22 +229,3 @@ def setup_database(request):
     output.append(f"✅ {len(doctors_data)} Doctors created/verified")
 
     return HttpResponse("<br>".join(output) + "<br><br><b>Success! You can now log into /admin and also see doctors in the dropdown.</b>")
-
-def update_appointment_status(request):
-    """View to handle status updates for appointments from the admin dashboard."""
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return redirect('admin_login')
-    
-    if request.method == 'POST':
-        appointment_id = request.POST.get('appointment_id')
-        new_status = request.POST.get('status')
-        
-        try:
-            appointment = Appointment.objects.get(id=appointment_id)
-            appointment.status = new_status
-            appointment.save()
-            messages.success(request, f'Status for {appointment.token_number} updated to {new_status.upper()}.')
-        except Appointment.DoesNotExist:
-            messages.error(request, 'Appointment not found.')
-            
-    return redirect('admin_dashboard')

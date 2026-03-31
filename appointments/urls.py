@@ -10,5 +10,4 @@ urlpatterns = [
     path('doctor-dashboard/', views.doctor_dashboard, name='doctor_dashboard'),
     path('home/', views.home, name='home'),
     path('setup-db/', views.setup_database, name='setup_database'),
-    path('update-status/', views.update_appointment_status, name='update_appointment_status'),
 ]
