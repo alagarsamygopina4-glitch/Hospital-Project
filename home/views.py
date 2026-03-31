@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db import OperationalError, ProgrammingError
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -99,11 +100,11 @@ def patient_dashboard(request):
         # Fetch appointments
         appointments = Appointment.objects.filter(patient_email=patient.email).order_by('-appointment_date')
 
-        # Fetch Diet Plan
+        # Fetch Diet Plan - catch schema errors gracefully
         try:
             diet_plan = DietPlan.objects.get(patient=patient)
             diet_recommendations = DailyMealPlan.objects.filter(diet_plan=diet_plan).order_by('day_number', 'meal_type')
-        except DietPlan.DoesNotExist:
+        except (DietPlan.DoesNotExist, OperationalError, ProgrammingError, Exception):
             diet_plan = None
             diet_recommendations = None
 
@@ -111,7 +112,10 @@ def patient_dashboard(request):
         first_name = patient.full_name.split(' ')[0] if patient.full_name else patient.username
 
         # smoothly checks if health profile exists without throwing error
-        has_profile = hasattr(patient, 'health_profile')
+        try:
+            has_profile = hasattr(patient, 'health_profile') and patient.health_profile is not None
+        except (OperationalError, ProgrammingError, Exception):
+            has_profile = False
             
         context = {
             'patient': patient,
