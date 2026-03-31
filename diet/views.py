@@ -25,7 +25,7 @@ def diet_dashboard(request):
     
     recommendations = None
     if diet_plan and diet_plan.status in ['approved', 'published']:
-        recommendations = DietRecommendation.objects.filter(diet_plan=diet_plan)
+        recommendations = DailyMealPlan.objects.filter(diet_plan=diet_plan).order_by('day_number', 'meal_type')
     elif diet_plan:
          # If not approved/published, don't show recommendations or show pending message
          pass
