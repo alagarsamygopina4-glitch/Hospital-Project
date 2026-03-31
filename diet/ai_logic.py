@@ -99,8 +99,9 @@ def generate_7_day_diet_plan(patient):
     for day in range(1, 8):
         # Pick one for each meal type
         for meal_type, meal_list in [('Breakfast', breakfasts), ('Lunch', lunches), ('Dinner', dinners)]:
-            food = random.choice(list(meal_list)) if meal_list.exists() else None
-            if food:
+            food_list = list(meal_list)
+            if food_list:
+                food = random.choice(food_list)
                 DailyMealPlan.objects.create(
                     diet_plan=plan,
                     day_number=day,
