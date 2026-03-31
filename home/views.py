@@ -59,11 +59,7 @@ def patient_register(request):
             bmi=bmi,
         )
 
-        # Auto-login after registration
-        request.session['patient_id'] = patient.id
-        request.session['patient_username'] = patient.username
-
-        return redirect('patient_dashboard')
+        return redirect('patient_login')
 
     return render(request, 'home/patient_register.html')
 
