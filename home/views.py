@@ -102,7 +102,18 @@ def patient_dashboard(request):
         patient = Patient.objects.get(id=patient_id)
         # Fetch appointments
         appointments = Appointment.objects.filter(patient_email=patient.email).order_by('-appointment_date')
-        
+         first_name = patient.full_name.split(' ')[0] if patient.full_name else patient.username
+        # smoothly checks if health profile exists without throwing error
+        has_profile = hasattr(patient, 'health_profile')
+            
+        context = {
+            'patient': patient,
+            'first_name': first_name,
+            'has_profile': has_profile,
+        }
+        return render(request, 'home/patient_dashboard.html', context)
+    except Patient.DoesNotExist:
+        return redirect('patient_login')
         # Fetch Diet Plan
         try:
             diet_plan = DietPlan.objects.get(patient=patient)
