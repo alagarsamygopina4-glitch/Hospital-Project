@@ -111,6 +111,9 @@ def patient_dashboard(request):
             diet_plan = None
             diet_recommendations = None
             
+        # Get first name for welcome message
+        first_name = patient.full_name.split(' ')[0] if patient.full_name else patient.username
+
         # Check if profile exists safely
         has_profile = hasattr(patient, 'health_profile')
             
