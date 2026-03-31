@@ -230,32 +230,21 @@ def setup_database(request):
 
     return HttpResponse("<br>".join(output) + "<br><br><b>Success! You can now log into /admin and also see doctors in the dropdown.</b>")
 
-from django.contrib import messages
-
-def update_appointment_status(request, pk):
-    """View for admins/doctors to update appointment status from dashboards."""
-    if not request.user.is_authenticated:
-        # Check if it's a doctor via session
-        if 'doctor_id' not in request.session:
-            return redirect('login')
+def update_appointment_status(request):
+    """View to handle status updates for appointments from the admin dashboard."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('admin_login')
     
-    try:
-        from django.shortcuts import get_object_or_404
-        appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == 'POST':
+        appointment_id = request.POST.get('appointment_id')
+        new_status = request.POST.get('status')
         
-        if request.method == 'POST':
-            new_status = request.POST.get('status')
-            if not new_status: 
-                # If no status in POST, maybe it's the "Mark as Completed" button
-                new_status = 'completed'
-                
-            if new_status in ['pending', 'completed', 'cancelled', 'confirmed']:
-                appointment.status = new_status
-                appointment.save()
-                messages.success(request, f"Appointment {appointment.token_number} updated to {new_status.upper()}.")
-        
-    except Exception as e:
-        messages.error(request, f"Error updating status: {str(e)}")
-        
-    # Redirect back to where they came from
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+        try:
+            appointment = Appointment.objects.get(id=appointment_id)
+            appointment.status = new_status
+            appointment.save()
+            messages.success(request, f'Status for {appointment.token_number} updated to {new_status.upper()}.')
+        except Appointment.DoesNotExist:
+            messages.error(request, 'Appointment not found.')
+            
+    return redirect('admin_dashboard')

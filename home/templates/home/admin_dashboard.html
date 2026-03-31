@@ -105,10 +105,14 @@
                                     <td>{{ appt.appointment_date }}</td>
                                     <td>{{ appt.appointment_time }}</td>
                                     <td class="pe-3 text-end">
-                                        <form action="{% url 'update_appointment_status' appt.id %}" method="POST" class="d-inline-flex align-items-center">
+                                        <form action="{% url 'update_appointment_status' %}" method="POST" class="d-inline-block">
                                             {% csrf_token %}
-                                            <select name="status" onchange="this.form.submit()" class="form-select form-select-sm border-0 bg-transparent fw-bold text-end" style="width: auto; cursor: pointer; color: {% if appt.status == 'pending' %}#ffc107{% elif appt.status == 'completed' %}#198754{% elif appt.status == 'cancelled' %}#dc3545{% else %}#17a2b8{% endif %};">
+                                            <input type="hidden" name="appointment_id" value="{{ appt.id }}">
+                                            <select name="status" onchange="this.form.submit()" 
+                                                class="form-select form-select-sm shadow-none" 
+                                                style="font-size: 0.75rem; width: auto; background-color: {% if appt.status == 'pending' %}#fff3cd{% elif appt.status == 'completed' %}#d1e7dd{% elif appt.status == 'cancelled' %}#f8d7da{% else %}#e2e3e5{% endif %};">
                                                 <option value="pending" {% if appt.status == 'pending' %}selected{% endif %}>PENDING</option>
+                                                <option value="confirmed" {% if appt.status == 'confirmed' %}selected{% endif %}>CONFIRMED</option>
                                                 <option value="completed" {% if appt.status == 'completed' %}selected{% endif %}>COMPLETED</option>
                                                 <option value="cancelled" {% if appt.status == 'cancelled' %}selected{% endif %}>CANCELLED</option>
                                             </select>

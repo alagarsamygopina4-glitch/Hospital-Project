@@ -15,6 +15,7 @@ class DoctorAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = ['token_number', 'patient_name', 'patient_email', 'doctor', 'appointment_date', 'appointment_time', 'status']
+    list_editable = ['status']
     list_filter = ['status', 'appointment_date', 'doctor']
     search_fields = ['patient_name', 'patient_email', 'doctor__name', 'token_number']
     readonly_fields = ['token_number', 'created_at']
