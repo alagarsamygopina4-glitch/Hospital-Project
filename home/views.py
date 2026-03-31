@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.http import HttpResponse
 import random
 from .models import Patient, OTP
 from appointments.models import Doctor, Appointment
@@ -9,7 +10,11 @@ from diet.models import DietPlan, DailyMealPlan, PatientHealthProfile
 
 # Home Page
 def home(request):
-    return render(request, 'home/index.html')
+    try:
+        return render(request, 'home/index.html')
+    except Exception as e:
+        import traceback
+        return HttpResponse(f"<pre>{traceback.format_exc()}</pre>")
 
 # Patient Registration
 def patient_register(request):
