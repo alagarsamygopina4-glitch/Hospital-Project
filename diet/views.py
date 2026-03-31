@@ -93,10 +93,14 @@ def regenerate_diet_plan(request):
         messages.warning(request, "Please complete your Health Profile first.")
         return redirect('health_profile_form')
 
-    from diet.ai_logic import generate_7_day_diet_plan
-    generate_7_day_diet_plan(patient)
+    try:
+        from diet.ai_logic import generate_7_day_diet_plan
+        generate_7_day_diet_plan(patient)
+        messages.success(request, "Diet plan generated successfully based on your profile!")
+    except Exception as e:
+        messages.error(request, f"Error generating plan: {str(e)}")
+        # If it failed, we should probably redirect back
     
-    messages.success(request, "Diet plan generated successfully based on your profile!")
     return redirect('patient_dashboard')
 
 def health_profile_form(request):
