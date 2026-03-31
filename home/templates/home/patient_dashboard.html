@@ -7,7 +7,7 @@
         <div class="container d-flex justify-content-between align-items-center">
             <h4 class="mb-0 fw-bold text-primary"><span class="bg-primary text-white p-2 rounded me-2">🏥</span> Surya
                 Hospital</h4>
-            <div class="text-muted small fw-bold text-uppercase letter-spacing-1">Patient Portal</div>
+            <div class="text-muted small fw-bold text-uppercase letter-spacing-1">PATIENT PORTAL</div>
         </div>
     </div>
 
@@ -16,82 +16,82 @@
             <!-- Left Side: Main Dashboard Content -->
             <div class="col-lg-8">
                 <!-- Welcome Card -->
-                <div
-                    class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4 bg-gradient-blue text-white p-4 position-relative">
-                    <div class="card-body py-4 ps-4 z-index-1">
+                <div class="card border-0 shadow-sm overflow-hidden mb-5 bg-gradient-blue text-white p-4" style="border-radius: 12px;">
+                    <div class="card-body p-2 z-index-1">
                         <h1 class="display-5 fw-bold mb-2">Hello, {{ first_name }}</h1>
-                        <p class="lead opacity-90 mb-4">Track your health journey and upcoming appointments.</p>
+                        <p class="mb-4 text-white-50">Track your health journey and upcoming appointments.</p>
                         <a href="{% url 'appointments' %}"
-                            class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">Book New Appointment</a>
+                            class="btn btn-outline-light rounded-pill px-4 fw-bold">Book New Appointment</a>
                     </div>
                 </div>
 
                 <!-- AI Diet Plans Section -->
                 <div class="mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold mb-0 d-flex align-items-center">
                             <i class="bi bi-magic text-primary me-2"></i> Your AI-Generated Diet Plans
                         </h5>
-                        <a href="{% url 'regenerate_diet_plan' %}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill shadow-sm">
+                        <a href="{% url 'regenerate_diet_plan' %}" class="btn btn-sm btn-outline-primary fw-bold shadow-sm" style="border-radius: 20px;">
                             <i class="bi bi-arrow-clockwise me-1"></i> Generate AI Plan
                         </a>
                     </div>
 
                     {% if diet_plan %}
-                    <div class="card border-0 rounded-4 shadow-sm p-4 bg-white border-left-blue">
-                        <div class="mb-4 d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-muted small d-block mb-1 text-uppercase">Generated on {{ diet_plan.created_at|date:"F j, Y" }}</span>
-                                <h6 class="text-primary fw-bold mb-0">Daily Calorie Target: {{ diet_plan.daily_calories }} kcal</h6>
-                            </div>
-                            <span class="badge bg-{% if diet_plan.status == 'approved' %}success{% else %}warning text-dark{% endif %} px-3 py-2 rounded-pill">{{ diet_plan.get_status_display }}</span>
+                    <div class="card border-0 shadow-sm p-4 bg-white border-left-blue" style="border-radius: 12px;">
+                        <div class="mb-4">
+                            <span class="text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Generated on {{ diet_plan.created_at|date:"F j, Y" }}</span>
+                            <h6 class="text-primary fw-bold mt-1">
+                                Medical Focus: {% if diet_plan.health_profile.goal == 'loss' %}weight loss{% elif diet_plan.health_profile.goal == 'gain' %}weight gain{% else %}balanced{% endif %}
+                            </h6>
                         </div>
 
                         {% regroup diet_recommendations by day_number as days_list %}
-                        <div class="accordion" id="dietPlanAccordion">
+                        {% if days_list|length > 1 %}
+                        <!-- Tabs for 7-day plan -->
+                        <ul class="nav nav-pills mb-3" id="dietTabs" role="tablist">
                             {% for day in days_list %}
-                            <div class="accordion-item border-0 mb-3 shadow-sm rounded overflow-hidden">
-                                <h2 class="accordion-header" id="heading{{ day.grouper }}">
-                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-bold bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ day.grouper }}">
-                                        Day {{ day.grouper }}
-                                    </button>
-                                </h2>
-                                <div id="collapse{{ day.grouper }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#dietPlanAccordion">
-                                    <div class="accordion-body p-3 p-md-4 bg-white">
-                                        <div class="row g-3">
-                                            {% for rec in day.list %}
-                                            <div class="col-md-4">
-                                                <div class="bg-light p-3 rounded-3 h-100 border border-left-{{ rec.meal_type|lower }}">
-                                                    <span class="text-uppercase x-small fw-bold text-primary d-block mb-2">{{ rec.meal_type }}</span>
-                                                    <p class="mb-2 fw-bold small text-dark lh-sm">{{ rec.food_name }}</p>
-                                                    <div class="text-muted" style="font-size: 0.7rem; letter-spacing: 0px;">
-                                                        <i class="bi bi-fire text-danger"></i> {{ rec.calories|floatformat:0 }} kcal<br>
-                                                        <span class="text-success">P:</span> {{ rec.protein|floatformat:0 }}g  
-                                                        <span class="text-info ms-1">C:</span> {{ rec.carbs|floatformat:0 }}g  
-                                                        <span class="text-warning ms-1">F:</span> {{ rec.fat|floatformat:0 }}g
-                                                    </div>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link {% if forloop.first %}active{% endif %} rounded-pill px-3 py-1 me-2" id="day{{ day.grouper }}-tab" data-bs-toggle="pill" data-bs-target="#day{{ day.grouper }}" type="button" role="tab" style="font-size: 0.85rem; font-weight: 600;">Day {{ day.grouper }}</button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        <div class="tab-content" id="dietTabsContent">
+                            {% for day in days_list %}
+                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="day{{ day.grouper }}" role="tabpanel">
+                                <div class="row g-3">
+                                    {% for rec in day.list %}
+                                    {% if rec.meal_type|lower in 'breakfast,lunch,dinner,snack' %}
+                                    <div class="col-md-4">
+                                        <div class="card border shadow-none h-100" style="border-radius: 8px; border-color: #f1f5f9 !important;">
+                                            <div class="card-body text-center p-3 d-flex flex-column justify-content-center">
+                                                <div class="text-muted text-uppercase mb-2" style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px;">{{ rec.meal_type }}</div>
+                                                <div class="text-dark fw-bold" style="font-size: 0.85rem;">
+                                                    {{ rec.food_name }} <br><span class="fw-normal">(P:{{ rec.protein|floatformat:1 }}g, C:{{ rec.carbs|floatformat:1 }}g, F:{{ rec.fat|floatformat:1 }}g)</span>
                                                 </div>
                                             </div>
-                                            {% endfor %}
                                         </div>
                                     </div>
+                                    {% endif %}
+                                    {% endfor %}
                                 </div>
                             </div>
                             {% empty %}
                             <div class="col-12 text-center py-4 bg-light rounded">
-                                <p class="text-muted italic small mb-0">No meals generated yet.</p>
+                                <p class="text-muted font-italic small mb-0">No meals generated yet.</p>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                     {% else %}
                         {% if has_profile %}
-                        <div class="card border-0 rounded-4 shadow-sm p-4 text-center bg-white border-dashed">
+                        <div class="card border-0 shadow-sm p-4 text-center bg-white border-dashed" style="border-radius: 12px;">
                             <p class="text-muted mb-3">Your profile is complete, but no plan found.</p>
                             <a href="{% url 'regenerate_diet_plan' %}" class="btn btn-primary rounded-pill">Generate Plan Now</a>
                         </div>
                         {% else %}
-                        <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white border-dashed">
+                        <div class="card border-0 shadow-sm p-5 text-center bg-white border-dashed" style="border-radius: 12px;">
                             <div class="mb-3">
                                 <i class="bi bi-clipboard2-pulse text-primary display-4 mb-2"></i>
                             </div>
@@ -105,28 +105,28 @@
 
                 <!-- Upcoming Appointments -->
                 <div>
-                    <h5 class="fw-bold mb-4 d-flex align-items-center">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center">
                         <i class="bi bi-calendar-check text-primary me-2"></i> Upcoming Appointments
                     </h5>
-                    <div class="card border-0 rounded-4 shadow-sm overflow-hidden bg-white">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-4 py-3 text-muted small text-uppercase">Service</th>
-                                    <th class="py-3 text-muted small text-uppercase">Date/Time</th>
-                                    <th class="pe-4 py-3 text-muted small text-uppercase">Token</th>
+                    <div class="card border-0 shadow-sm overflow-hidden bg-white" style="border-radius: 12px;">
+                        <table class="table table-borderless mb-0">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <th class="ps-4 py-3 text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700;">Service</th>
+                                    <th class="py-3 text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700;">Date/Time</th>
+                                    <th class="pe-4 py-3 text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700;">Token</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for appt in appointments %}
                                 <tr>
-                                    <td class="ps-4 py-3 fw-bold text-dark">Consultation</td>
-                                    <td class="py-3">{{ appt.appointment_date|date:"M j" }} at {{ appt.appointment_time }}</td>
-                                    <td class="pe-4 py-3 text-muted font-monospace">{{ appt.token_number }}</td>
+                                    <td class="ps-4 py-3 fw-bold text-dark" style="font-size: 0.9rem;">Consultation</td>
+                                    <td class="py-3" style="font-size: 0.9rem;">{{ appt.appointment_date|date:"F j" }} at {{ appt.appointment_time }}</td>
+                                    <td class="pe-4 py-3 text-muted font-monospace" style="font-size: 0.9rem;">{{ appt.token_number }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="3" class="text-center py-5 text-muted">No appointments scheduled.</td>
+                                    <td colspan="3" class="text-center py-5 text-muted small">No appointments scheduled.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -137,48 +137,48 @@
 
             <!-- Right Side: Profile & Info -->
             <div class="col-lg-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white sticky-top" style="top: 20px; z-index: 10;">
+                <div class="card border-0 shadow-sm p-4 bg-white sticky-top" style="border-radius: 12px; top: 20px; z-index: 10;">
                     <div class="text-center mb-4">
-                        <div class="profile-initial bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
-                            style="width: 80px; height: 80px; font-size: 2rem; color: #718096; border: 1px solid #e2e8f0;">
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 text-secondary"
+                            style="width: 70px; height: 70px; font-size: 1.8rem; border: 1px solid #e2e8f0;">
                             {{ patient.full_name|default:patient.username|slice:":1"|upper }}
                         </div>
                         <h5 class="fw-bold mb-1 text-dark">{{ patient.full_name|default:patient.username }}</h5>
                         <p class="text-muted small mb-0">{{ patient.email }}</p>
                     </div>
 
-                    <hr class="my-4 opacity-50">
+                    <hr class="mb-4 mt-0 border-secondary opacity-25">
 
                     <div class="profile-details">
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted small">Blood Group</span>
-                            <span class="fw-bold text-danger">{{ patient.blood_group|default:"N/A" }}</span>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: #f8f9fa !important;">
+                            <span class="text-muted" style="font-size: 0.85rem;">Blood Group</span>
+                            <span class="fw-bold text-danger" style="font-size: 0.85rem;">{{ patient.blood_group|default:"N/A" }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted small">Height</span>
-                            <span class="fw-bold text-dark">{% if patient.height %}{{ patient.height }} cm{% else %}Not Set{% endif %}</span>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: #f8f9fa !important;">
+                            <span class="text-muted" style="font-size: 0.85rem;">Height</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.85rem;">{% if patient.height %}{{ patient.height }} cm{% else %}Not Set{% endif %}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted small">Weight</span>
-                            <span class="fw-bold text-dark">{% if patient.weight %}{{ patient.weight }} kg{% else %}Not Set{% endif %}</span>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: #f8f9fa !important;">
+                            <span class="text-muted" style="font-size: 0.85rem;">Weight</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.85rem;">{% if patient.weight %}{{ patient.weight }} kg{% else %}Not Set{% endif %}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted small">BMI</span>
-                            <span class="fw-bold text-info">{% if patient.bmi %}{{ patient.bmi }}{% else %}Not Set{% endif %}</span>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: #f8f9fa !important;">
+                            <span class="text-muted" style="font-size: 0.85rem;">BMI</span>
+                            <span class="fw-bold text-info" style="font-size: 0.85rem;">{% if patient.bmi %}{{ patient.bmi }}{% else %}Not Set{% endif %}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted small">Date of Birth</span>
-                            <span class="fw-bold text-dark">{% if patient.date_of_birth %}{{ patient.date_of_birth|date:"F d, Y" }}{% else %}Not Set{% endif %}</span>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2" style="border-color: #f8f9fa !important;">
+                            <span class="text-muted" style="font-size: 0.85rem;">Date of Birth</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.85rem;">{% if patient.date_of_birth %}{{ patient.date_of_birth|date:"F d, Y" }}{% else %}Not Set{% endif %}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-4">
-                            <span class="text-muted small">Contact</span>
-                            <span class="fw-bold text-dark">{{ patient.contact|default:"Not Set" }}</span>
+                        <div class="d-flex justify-content-between mb-4 pb-2">
+                            <span class="text-muted" style="font-size: 0.85rem;">Contact</span>
+                            <span class="fw-bold text-dark" style="font-size: 0.85rem;">{{ patient.contact|default:"Not Set" }}</span>
                         </div>
                     </div>
 
-                    <div class="text-center mt-4">
+                    <div class="text-center mt-3">
                         <a href="{% url 'patient_logout' %}"
-                            class="btn btn-link text-danger fw-bold text-decoration-none p-0">Sign Out</a>
+                            class="text-danger fw-bold text-decoration-none" style="font-size: 0.9rem;">Sign Out</a>
                     </div>
                 </div>
             </div>
@@ -187,42 +187,36 @@
 </div>
 
 <style>
+    body {
+        background-color: #f8f9fa !important;
+    }
+
     .bg-gradient-blue {
-        background: linear-gradient(135deg, #1e90ff 0%, #3b82f6 100%);
+        background: #328af1; /* Solid matching blue */
     }
 
     .border-left-blue {
-        border-left: 5px solid #1e90ff !important;
+        border-left: 4px solid #328af1 !important;
     }
 
     .letter-spacing-1 {
         letter-spacing: 1px;
     }
 
-    .x-small {
-        font-size: 0.65rem;
-    }
-
-    .z-index-1 {
-        z-index: 1;
-        position: relative;
-    }
-
     .border-dashed {
         border: 2px dashed #e2e8f0 !important;
     }
 
-    .table> :not(caption)>*>* {
-        border-bottom-width: 0;
-    }
-
-    .table tbody tr:not(:last-child) {
-        border-bottom: 1px solid #f1f5f9;
-    }
-
     .font-monospace {
         font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
-        font-size: 0.8rem;
+    }
+
+    .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+        background-color: #e8f3fe;
+        color: #328af1;
+    }
+    .nav-pills .nav-link {
+        color: #6c757d;
     }
 </style>
 {% endblock %}
