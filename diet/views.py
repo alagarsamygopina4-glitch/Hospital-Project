@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import DietPlan, DietRecommendation
+from .models import DietPlan, DailyMealPlan, PatientHealthProfile, Food
 from home.models import Patient
 import random
 
@@ -89,8 +89,69 @@ def regenerate_diet_plan(request):
     if not patient:
         return redirect('patient_login')
         
-    from diet.ai_logic import generate_diet_plan_for_patient
-    generate_diet_plan_for_patient(patient.id)
+    if not hasattr(patient, 'health_profile'):
+        messages.warning(request, "Please complete your Health Profile first.")
+        return redirect('health_profile_form')
+
+    from diet.ai_logic import generate_7_day_diet_plan
+    generate_7_day_diet_plan(patient)
     
-    # Optional: ensure status is what we want for dashboard
+    messages.success(request, "Diet plan generated successfully based on your profile!")
     return redirect('patient_dashboard')
+
+def health_profile_form(request):
+    patient = get_current_patient(request)
+    if not patient:
+        return redirect('patient_login')
+        
+    profile, created = PatientHealthProfile.objects.get_or_create(patient=patient)
+
+    if request.method == 'POST':
+        # Parse Personal & Body Metrics
+        profile.age = int(request.POST.get('age', 30))
+        profile.gender = request.POST.get('gender')
+        profile.height = float(request.POST.get('height', 170.0))
+        profile.weight = float(request.POST.get('weight', 70.0))
+        profile.goal = request.POST.get('goal', 'maintain')
+        
+        # Patient model sync (keeping them in sync for BMI calculation)
+        patient.height = profile.height
+        patient.weight = profile.weight
+        patient.save()
+
+        # Parse Medical History
+        profile.diabetes = request.POST.get('diabetes') == 'on'
+        profile.hypertension = request.POST.get('hypertension') == 'on'
+        profile.thyroid = request.POST.get('thyroid') == 'on'
+        profile.heart_disease = request.POST.get('heart_disease') == 'on'
+        profile.pcos = request.POST.get('pcos') == 'on'
+        profile.other_symptoms = request.POST.get('other_symptoms', '')
+
+        # Parse Food Prefs
+        profile.dietary_preference = request.POST.get('dietary_preference', 'veg')
+        profile.meal_frequency = int(request.POST.get('meal_frequency', 3))
+        profile.cuisine_preference = request.POST.get('cuisine_preference', 'mixed')
+        
+        profile.milk_allergy = request.POST.get('milk_allergy') == 'on'
+        profile.nuts_allergy = request.POST.get('nuts_allergy') == 'on'
+        profile.gluten_allergy = request.POST.get('gluten_allergy') == 'on'
+        profile.seafood_allergy = request.POST.get('seafood_allergy') == 'on'
+        profile.custom_allergies = request.POST.get('custom_allergies', '')
+
+        # Parse Lifestyle
+        profile.activity_level = request.POST.get('activity_level', 'sedentary')
+        profile.sleep_hours = float(request.POST.get('sleep_hours', 8))
+        profile.water_intake = float(request.POST.get('water_intake', 2))
+        profile.smoking_alcohol = request.POST.get('smoking_alcohol') == 'on'
+
+        profile.save()
+
+        # Generate Diet Plan automatically
+        from diet.ai_logic import generate_7_day_diet_plan
+        generate_7_day_diet_plan(patient)
+
+        messages.success(request, "Health Profile saved! Your personalized AI diet plan has been generated.")
+        return redirect('patient_dashboard')
+
+    context = {'patient': patient, 'profile': profile}
+    return render(request, 'diet/health_profile.html', context)

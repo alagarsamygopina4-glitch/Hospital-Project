@@ -39,33 +39,67 @@
 
                     {% if diet_plan %}
                     <div class="card border-0 rounded-4 shadow-sm p-4 bg-white border-left-blue">
-                        <div class="mb-4">
-                            <span class="text-muted small d-block mb-1 text-uppercase">Generated on {{ diet_plan.created_at|date:"F j, Y" }}</span>
-                            <h6 class="text-primary fw-bold mb-0">Medical Focus: {{ diet_plan.diet_type }}</h6>
+                        <div class="mb-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small d-block mb-1 text-uppercase">Generated on {{ diet_plan.created_at|date:"F j, Y" }}</span>
+                                <h6 class="text-primary fw-bold mb-0">Daily Calorie Target: {{ diet_plan.daily_calories }} kcal</h6>
+                            </div>
+                            <span class="badge bg-{% if diet_plan.status == 'approved' %}success{% else %}warning text-dark{% endif %} px-3 py-2 rounded-pill">{{ diet_plan.get_status_display }}</span>
                         </div>
 
-                        <div class="row g-3">
-                            {% for rec in diet_recommendations %}
-                            <div class="col-md-4">
-                                <div class="bg-light p-3 rounded-3 text-center h-100 border">
-                                    <span class="text-uppercase x-small fw-bold text-muted d-block mb-2">{{ rec.meal_time }}</span>
-                                    <p class="mb-0 fw-bold small text-dark">{{ rec.recommendation }}</p>
+                        {% regroup diet_recommendations by day_number as days_list %}
+                        <div class="accordion" id="dietPlanAccordion">
+                            {% for day in days_list %}
+                            <div class="accordion-item border-0 mb-3 shadow-sm rounded overflow-hidden">
+                                <h2 class="accordion-header" id="heading{{ day.grouper }}">
+                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-bold bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ day.grouper }}">
+                                        Day {{ day.grouper }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ day.grouper }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#dietPlanAccordion">
+                                    <div class="accordion-body p-3 p-md-4 bg-white">
+                                        <div class="row g-3">
+                                            {% for rec in day.list %}
+                                            <div class="col-md-4">
+                                                <div class="bg-light p-3 rounded-3 h-100 border border-left-{{ rec.meal_type|lower }}">
+                                                    <span class="text-uppercase x-small fw-bold text-primary d-block mb-2">{{ rec.meal_type }}</span>
+                                                    <p class="mb-2 fw-bold small text-dark lh-sm">{{ rec.food_name }}</p>
+                                                    <div class="text-muted" style="font-size: 0.7rem; letter-spacing: 0px;">
+                                                        <i class="bi bi-fire text-danger"></i> {{ rec.calories|floatformat:0 }} kcal<br>
+                                                        <span class="text-success">P:</span> {{ rec.protein|floatformat:0 }}g  
+                                                        <span class="text-info ms-1">C:</span> {{ rec.carbs|floatformat:0 }}g  
+                                                        <span class="text-warning ms-1">F:</span> {{ rec.fat|floatformat:0 }}g
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {% empty %}
-                            <div class="col-12 text-center py-3">
-                                <p class="text-muted italic small mb-0">Plan details are being finalized by your doctor.
-                                </p>
+                            <div class="col-12 text-center py-4 bg-light rounded">
+                                <p class="text-muted italic small mb-0">No meals generated yet.</p>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                     {% else %}
-                    <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white border-dashed">
-                        <i class="bi bi-journal-medical text-muted display-4 mb-3"></i>
-                        <p class="text-muted mb-0">No active diet plans found. Book an appointment to get a personalized
-                            plan.</p>
-                    </div>
+                        {% if has_profile %}
+                        <div class="card border-0 rounded-4 shadow-sm p-4 text-center bg-white border-dashed">
+                            <p class="text-muted mb-3">Your profile is complete, but no plan found.</p>
+                            <a href="{% url 'regenerate_diet_plan' %}" class="btn btn-primary rounded-pill">Generate Plan Now</a>
+                        </div>
+                        {% else %}
+                        <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white border-dashed">
+                            <div class="mb-3">
+                                <i class="bi bi-clipboard2-pulse text-primary display-4 mb-2"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark">Health Profile Required</h5>
+                            <p class="text-muted mb-4 px-md-4">Complete your health profile to get a personalized 7-day diet plan tailored to your medical history, allergies, and lifestyle.</p>
+                            <a href="{% url 'health_profile_form' %}" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm px-5">Complete Profile</a>
+                        </div>
+                        {% endif %}
                     {% endif %}
                 </div>
 

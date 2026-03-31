@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 import random
 from .models import Patient, OTP
 from appointments.models import Doctor, Appointment
-from diet.models import DietPlan, DietRecommendation
+from diet.models import DietPlan, DailyMealPlan, PatientHealthProfile
 
 # Home Page
 def home(request):
@@ -101,20 +101,21 @@ def patient_dashboard(request):
         # Fetch Diet Plan
         try:
             diet_plan = DietPlan.objects.get(patient=patient)
-            diet_recommendations = DietRecommendation.objects.filter(diet_plan=diet_plan)
+            diet_recommendations = DailyMealPlan.objects.filter(diet_plan=diet_plan).order_by('day_number', 'meal_type')
         except DietPlan.DoesNotExist:
             diet_plan = None
             diet_recommendations = None
             
-        # Get first name for welcome message
-        first_name = patient.full_name.split(' ')[0] if patient.full_name else patient.username
+        # Check if profile exists safely
+        has_profile = hasattr(patient, 'health_profile')
             
         context = {
             'patient': patient,
             'first_name': first_name,
             'appointments': appointments,
             'diet_plan': diet_plan,
-            'diet_recommendations': diet_recommendations
+            'diet_recommendations': diet_recommendations,
+            'has_profile': has_profile
         }
         return render(request, 'home/patient_dashboard.html', context)
     except Patient.DoesNotExist:

@@ -1,84 +1,115 @@
 import random
-from diet.models import DietPlan, DietRecommendation, Food, PatientProfile
-from home.models import Patient
+from .models import DietPlan, DailyMealPlan, Food, PatientHealthProfile
 
-def generate_diet_plan_for_patient(patient_id):
-    patient = Patient.objects.get(id=patient_id)
-    profile, created = PatientProfile.objects.get_or_create(patient=patient)
+def calculate_daily_calories(profile):
+    """
+    Calculate TDEE (Total Daily Energy Expenditure) based on Mifflin-St Jeor Equation
+    """
+    # Baseline BMR estimation
+    # 10 * weight (kg) + 6.25 * height (cm) - 5 * age (y) + s
+    # s is +5 for male and -161 for female
     
-    # Calculate daily calories target
-    # Simple formulas
-    if not profile.weight or not profile.height:
-        cal_target = 2000
+    age = profile.age or 30
+    weight = profile.weight
+    height = profile.height
+    gender = profile.gender or 'M'
+    
+    if gender == 'M':
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5
     else:
-        # TDEE basic estimation
-        cal_target = profile.weight * 24
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161
         
-    if profile.goal == 'weight_loss':
-        cal_target -= 500
-        diet_type = 'low_carb'
-    elif profile.goal == 'weight_gain':
-        cal_target += 500
-        diet_type = 'balanced'
-    else:
-        diet_type = 'balanced'
-
-    # Filter foods
-    foods = Food.objects.all()
-    if profile.disease:
-        diseases = [d.strip().lower() for d in profile.disease.split(',')]
-        # This is a naive logic: exclude foods whose disease_tag is exactly the disease or containing it
-        # Actually, let's include foods that don't clash or specifically handle tags
-        # For a basic rule-based AI, let's just avoid bad tags (assuming disease_tag is bad if it matches)
-        # But wait, in the dummy data format: disease_tag="diabetes" means "good for diabetes"
-        # The prompt says: "Filters foods based on disease"
-        # Let's say if disease_tag matches, it's good. If it's a conflict, it's bad.
-        # Let's just do a simple filter.
-        filtered_foods = []
-        for f in foods:
-            if not f.disease_tag:
-                filtered_foods.append(f)
-            else:
-                tags = [t.strip().lower() for t in f.disease_tag.split(',')]
-                # if any tag matches patient disease, include it
-                if any(d in tags for d in diseases):
-                    filtered_foods.append(f)
-        if len(filtered_foods) > 0:
-            foods = filtered_foods
-
-    breakfasts = [f for f in foods if f.category == 'breakfast']
-    lunches = [f for f in foods if f.category == 'lunch']
-    dinners = [f for f in foods if f.category == 'dinner']
-    snacks = [f for f in foods if f.category == 'snack']
+    # Activity Multiplier
+    multipliers = {
+        'sedentary': 1.2,
+        'light': 1.375,
+        'moderate': 1.55,
+        'heavy': 1.725
+    }
     
-    # fallback if empty
-    if not breakfasts: breakfasts = Food.objects.filter(category='breakfast')
-    if not lunches: lunches = Food.objects.filter(category='lunch')
-    if not dinners: dinners = Food.objects.filter(category='dinner')
+    tdee = bmr * multipliers.get(profile.activity_level, 1.2)
+    
+    # Adjust for goals
+    if profile.goal == 'loss':
+        tdee -= 500
+    elif profile.goal == 'gain':
+        tdee += 500
+        
+    return int(tdee)
 
-    # Ensure uniqueness or replace old plan
-    DietPlan.objects.filter(patient=patient).delete()
+def generate_7_day_diet_plan(patient):
+    """
+    Generates a personalized 7-day diet plan based on the Patient's Health Profile
+    """
+    profile = patient.health_profile
+    daily_calories = calculate_daily_calories(profile)
+    
+    # Step 1: Filter Foods based on Medical History and Allergies
+    foods = Food.objects.all()
+    
+    # Medical Restrictions
+    if profile.diabetes:
+        foods = foods.filter(is_diabetic_friendly=True)
+    if profile.hypertension:
+        foods = foods.filter(is_bp_friendly=True)
+    if profile.heart_disease:
+        foods = foods.filter(is_heart_friendly=True)
+        
+    # Allergies
+    if profile.milk_allergy:
+        foods = foods.exclude(contains_milk=True)
+    if profile.nuts_allergy:
+        foods = foods.exclude(contains_nuts=True)
+    if profile.gluten_allergy:
+        foods = foods.exclude(contains_gluten=True)
+        
+    # Dietary Preference
+    if profile.dietary_preference == 'veg':
+        foods = foods.filter(is_veg=True)
+    elif profile.dietary_preference == 'vegan':
+        # Simple vegan check: veg and no milk (assuming milk is the only non-vegan veg)
+        foods = foods.filter(is_veg=True, contains_milk=False)
+    
+    # Cuisine Preference
+    # Try to favor preference, but fallback if empty
+    cuisine_foods = foods.filter(cuisine=profile.cuisine_preference)
+    if cuisine_foods.exists():
+        foods = cuisine_foods
+
+    # Step 2: Categorize meals
+    breakfasts = foods.filter(category='breakfast')
+    lunches = foods.filter(category='lunch')
+    dinners = foods.filter(category='dinner')
+    
+    # Fallbacks to all foods if filtering was too strict
+    if not breakfasts.exists(): breakfasts = Food.objects.filter(category='breakfast')
+    if not lunches.exists(): lunches = Food.objects.filter(category='lunch')
+    if not dinners.exists(): dinners = Food.objects.filter(category='dinner')
+
+    # Step 3: Create DietPlan
+    DietPlan.objects.filter(patient=patient).delete() # Remove old plan
     plan = DietPlan.objects.create(
         patient=patient,
-        diet_type=diet_type,
-        calories_per_day=cal_target,
-        status='draft',
-        ai_generated_plan=f"AI Rule-Based Plan for Goal: {profile.goal}"
+        health_profile=profile,
+        daily_calories=daily_calories,
+        status='draft'
     )
     
-    # Add recommendations
-    def add_meal(meal_time, meal_list):
-        if meal_list:
-            meal = random.choice(meal_list)
-            DietRecommendation.objects.create(
-                diet_plan=plan,
-                meal_time=meal_time,
-                recommendation=f"{meal.name} (P:{meal.protein}g, C:{meal.carbs}g, F:{meal.fat}g)",
-                calories=meal.calories
-            )
-            
-    add_meal('Breakfast', breakfasts)
-    add_meal('Lunch', lunches)
-    add_meal('Dinner', dinners)
+    # Step 4: Generate 7 Days
+    for day in range(1, 8):
+        # Pick one for each meal type
+        for meal_type, meal_list in [('Breakfast', breakfasts), ('Lunch', lunches), ('Dinner', dinners)]:
+            food = random.choice(list(meal_list)) if meal_list.exists() else None
+            if food:
+                DailyMealPlan.objects.create(
+                    diet_plan=plan,
+                    day_number=day,
+                    meal_type=meal_type,
+                    food_name=food.name,
+                    calories=food.calories,
+                    protein=food.protein,
+                    carbs=food.carbs,
+                    fat=food.fat
+                )
     
     return plan
