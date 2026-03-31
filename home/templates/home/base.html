@@ -41,52 +41,41 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url 'home' %}">🏥 Surya Hospital</a>
 
-            {% if request.resolver_match.url_name == 'home' %}
-            <!-- Home page: only show Admin Login button -->
-            <div class="ms-auto d-flex align-items-center">
-                {% if user.is_authenticated and user.is_staff %}
-                <a href="/admin/" class="btn btn-warning btn-sm text-dark fw-bold">
-                    <i class="bi bi-speedometer2"></i> Admin Panel
-                </a>
-                {% else %}
-                <a href="{% url 'admin_login' %}" class="btn btn-outline-warning btn-sm text-white">
-                    <i class="bi bi-shield-lock"></i> Admin Login
-                </a>
-                {% endif %}
-            </div>
-            {% else %}
-            <!-- Other pages: show full navbar -->
+            <!-- Uniform Navbar for all pages -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                    
                     {% if user.is_authenticated and user.is_staff %}
-                    <li class="nav-item"><a class="nav-link text-warning" href="/admin/">Django Admin</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/admin/">
+                        <i class="bi bi-speedometer2"></i> Admin Panel
+                    </a></li>
                     {% elif request.session.doctor_id %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'doctor_dashboard' %}">Doctor Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Dr. {{ request.session.doctor_username }}</a></li>
                     {% elif request.session.patient_id %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'patient_dashboard' %}">My Dashboard</a></li>
-                    <li class="nav-item border-start ms-2 ps-2">
-                        <a class="nav-link btn btn-outline-danger btn-sm text-white border-0"
-                            href="{% url 'patient_logout' %}">
-                            <i class="bi bi-box-arrow-right"></i> Sign Out
+                    {% endif %}
+
+                    {% if not user.is_authenticated %}
+                    <li class="nav-item border-start ms-lg-2 ps-lg-2">
+                        <a class="nav-link btn btn-outline-warning btn-sm text-white px-3" href="{% url 'admin_login' %}">
+                            <i class="bi bi-shield-lock"></i> Admin Login
                         </a>
                     </li>
                     {% endif %}
-                    {% if not user.is_authenticated %}
-                    <li class="nav-item border-start ms-2 ps-2">
-                        <a class="nav-link btn btn-outline-warning btn-sm text-white border-0"
-                            href="{% url 'admin_login' %}">
-                            <i class="bi bi-shield-lock"></i> Admin Login
+
+                    {% if request.session.patient_id or request.session.doctor_id %}
+                    <li class="nav-item border-start ms-lg-2 ps-lg-2">
+                        <a class="nav-link btn btn-outline-danger btn-sm text-white px-3" href="{% url 'patient_logout' %}">
+                            <i class="bi bi-box-arrow-right"></i> Sign Out
                         </a>
                     </li>
                     {% endif %}
                 </ul>
             </div>
-            {% endif %}
         </div>
     </nav>
 
