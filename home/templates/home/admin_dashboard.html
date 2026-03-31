@@ -105,9 +105,14 @@
                                     <td>{{ appt.appointment_date }}</td>
                                     <td>{{ appt.appointment_time }}</td>
                                     <td class="pe-3 text-end">
-                                        <span
-                                            class="badge {% if appt.status == 'pending' %}bg-warning text-dark{% elif appt.status == 'confirmed' %}bg-info text-white{% else %}bg-secondary{% endif %}"
-                                            style="font-size: 0.7rem; font-weight: 500; border-radius: 4px; padding: 3px 8px;">{{ appt.status|upper }}</span>
+                                        <form action="{% url 'update_appointment_status' appt.id %}" method="POST" class="d-inline-flex align-items-center">
+                                            {% csrf_token %}
+                                            <select name="status" onchange="this.form.submit()" class="form-select form-select-sm border-0 bg-transparent fw-bold text-end" style="width: auto; cursor: pointer; color: {% if appt.status == 'pending' %}#ffc107{% elif appt.status == 'completed' %}#198754{% elif appt.status == 'cancelled' %}#dc3545{% else %}#17a2b8{% endif %};">
+                                                <option value="pending" {% if appt.status == 'pending' %}selected{% endif %}>PENDING</option>
+                                                <option value="completed" {% if appt.status == 'completed' %}selected{% endif %}>COMPLETED</option>
+                                                <option value="cancelled" {% if appt.status == 'cancelled' %}selected{% endif %}>CANCELLED</option>
+                                            </select>
+                                        </form>
                                     </td>
                                 </tr>
                                 {% empty %}

@@ -229,3 +229,33 @@ def setup_database(request):
     output.append(f"✅ {len(doctors_data)} Doctors created/verified")
 
     return HttpResponse("<br>".join(output) + "<br><br><b>Success! You can now log into /admin and also see doctors in the dropdown.</b>")
+
+from django.contrib import messages
+
+def update_appointment_status(request, pk):
+    """View for admins/doctors to update appointment status from dashboards."""
+    if not request.user.is_authenticated:
+        # Check if it's a doctor via session
+        if 'doctor_id' not in request.session:
+            return redirect('login')
+    
+    try:
+        from django.shortcuts import get_object_or_404
+        appointment = get_object_or_404(Appointment, pk=pk)
+        
+        if request.method == 'POST':
+            new_status = request.POST.get('status')
+            if not new_status: 
+                # If no status in POST, maybe it's the "Mark as Completed" button
+                new_status = 'completed'
+                
+            if new_status in ['pending', 'completed', 'cancelled', 'confirmed']:
+                appointment.status = new_status
+                appointment.save()
+                messages.success(request, f"Appointment {appointment.token_number} updated to {new_status.upper()}.")
+        
+    except Exception as e:
+        messages.error(request, f"Error updating status: {str(e)}")
+        
+    # Redirect back to where they came from
+    return redirect(request.META.get('HTTP_REFERER', 'home'))

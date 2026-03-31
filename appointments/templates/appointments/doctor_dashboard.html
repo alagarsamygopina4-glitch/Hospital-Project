@@ -71,9 +71,12 @@
                                     <button class="btn btn-outline-primary" title="View Patient History">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    <button class="btn btn-outline-success" title="Mark as Completed">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
+                                    <form action="{% url 'update_appointment_status' appointment.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-success" title="Mark as Completed">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
