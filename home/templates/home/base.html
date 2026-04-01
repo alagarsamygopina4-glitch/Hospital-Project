@@ -39,7 +39,10 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">🏥 Surya Hospital</a>
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+                <img src="{% static 'home/images/logo.png' %}" alt="Surya Hospital Logo" style="height: 40px; margin-right: 10px;">
+                Surya Hospital
+            </a>
 
             <!-- Uniform Navbar for all pages -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
