@@ -3,7 +3,7 @@ from .models import Doctor, Appointment, Department, MedicalRecord, Prescription
 
 admin.site.site_header = "Administration"
 admin.site.site_title = "Administration"
-admin.site.index_title = "Administration"
+admin.site.index_title = ""
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
