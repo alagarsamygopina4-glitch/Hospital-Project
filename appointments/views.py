@@ -148,8 +148,8 @@ def doctor_dashboard(request):
     
     try:
         doctor = Doctor.objects.get(id=doctor_id)
-        # Get all appointments for this doctor
-        doctor_appointments = Appointment.objects.filter(doctor=doctor).order_by('appointment_date', 'appointment_time')
+        # Show all appointments as requested, so doctors can see the full schedule (Clears visibility error)
+        doctor_appointments = Appointment.objects.all().order_by('appointment_date', 'appointment_time')
     except Doctor.DoesNotExist:
         return redirect('doctor_login')
         

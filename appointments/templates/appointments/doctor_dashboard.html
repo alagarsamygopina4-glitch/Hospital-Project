@@ -38,6 +38,7 @@
                                         <tr>
                                             <th class="ps-3 py-2 text-uppercase">Token</th>
                                             <th class="py-2 text-uppercase">Patient Name</th>
+                                            <th class="py-2 text-uppercase">Assigned Doctor</th>
                                             <th class="py-2 text-uppercase">Contact Details</th>
                                             <th class="py-2 text-uppercase">Date & Time</th>
                                             <th class="py-2 text-uppercase">Disease / Description</th>
@@ -49,6 +50,7 @@
                                         <tr style="border-bottom: 1px solid #eee;">
                                             <td class="ps-3 py-3 fw-bold text-primary">#{{ appt.token_number }}</td>
                                             <td class="py-3 fw-bold text-dark">{{ appt.patient_name }}</td>
+                                            <td class="py-3 text-muted">{% if appt.doctor %}Dr. {{ appt.doctor.name }}{% else %}<span class="badge bg-secondary p-1" style="font-size: 0.65rem;">Unassigned</span>{% endif %}</td>
                                             <td class="py-3">
                                                 <div><i class="bi bi-envelope small me-1"></i> {{ appt.patient_email }}</div>
                                                 <div class="text-muted"><i class="bi bi-telephone small me-1"></i> {{ appt.patient_phone }}</div>

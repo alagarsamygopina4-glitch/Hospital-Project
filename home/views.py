@@ -147,16 +147,12 @@ def doctor_login(request):
         password = request.POST.get("password")
 
         try:
-            # Case-insensitive fetch to find the correct doctor
-            doctor = Doctor.objects.filter(username__iexact=username, password=password).first()
-            if doctor:
-                request.session['doctor_id'] = doctor.id
-                request.session['doctor_username'] = doctor.username
-                return redirect('doctor_dashboard')
-            else:
-                message = "Invalid Username or Password"
-        except Exception as e:
-            message = "An error occurred during login. Please try again."
+            doctor = Doctor.objects.get(username=username, password=password)
+            request.session['doctor_id'] = doctor.id
+            request.session['doctor_username'] = doctor.username
+            return redirect('doctor_dashboard') 
+        except Doctor.DoesNotExist:
+            message = "Invalid Username or Password"
 
     return render(request, 'home/doctor_login.html', {"message": message})
 
