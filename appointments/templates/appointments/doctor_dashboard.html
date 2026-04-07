@@ -1,112 +1,117 @@
 {% extends 'home/base.html' %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-primary">Doctor Dashboard</h2>
-            <p class="text-muted">Welcome back, Dr. {{ doctor.name }}</p>
-        </div>
-        <div class="text-end">
-            <span class="badge bg-success p-2">Specialization: {{ doctor.specialization }}</span>
+<div class="doctor-wrapper shadow-sm" style="margin-top: -1.5rem; min-height: 100vh; background-color: #f8f9fa;">
+    <!-- Django-style Admin/Doctor Header -->
+    <div class="doctor-header py-2 px-4 d-flex justify-content-between align-items-center"
+        style="background-color: #417690; color: #f5dd5d;">
+        <h1 class="h4 mb-0 fw-bold">Doctor Administration Portal</h1>
+        <div class="doctor-user-info small text-white">
+            WELCOME, <span class="fw-bold">{{ doctor.name|upper }}</span>.
+            <a href="{% url 'home' %}" class="text-white text-decoration-none ms-2">VIEW SITE</a> /
+            <a href="{% url 'doctor_logout' %}" class="text-white text-decoration-none">LOG OUT</a>
         </div>
     </div>
 
-    <div class="card shadow border-0 overflow-hidden">
-        <div class="card-header bg-primary text-white p-3">
-            <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i> Upcoming Appointments</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Token</th>
-                            <th>Patient Details</th>
-                            <th>Contact</th>
-                            <th>Date & Time</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                            <th class="pe-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for appointment in appointments %}
-                        <tr>
-                            <td class="ps-4 align-middle">
-                                <span class="fw-bold text-primary">#{{ appointment.token_number }}</span>
-                            </td>
-                            <td class="align-middle">
-                                <div class="fw-bold text-dark">{{ appointment.patient_name }}</div>
-                                <div class="small text-muted">{{ appointment.patient_email }}</div>
-                            </td>
-                            <td class="align-middle">
-                                <span class="text-muted"><i class="bi bi-telephone-fill me-1"></i> {{
-                                    appointment.patient_phone }}</span>
-                            </td>
-                            <td class="align-middle">
-                                <div><i class="bi bi-calendar-event me-1"></i> {{ appointment.appointment_date }}</div>
-                                <div class="small text-muted"><i class="bi bi-clock me-1"></i> {{
-                                    appointment.appointment_time }}</div>
-                            </td>
-                            <td class="align-middle">
-                                <span class="text-truncate d-inline-block" style="max-width: 150px;"
-                                    title="{{ appointment.reason }}">
-                                    {{ appointment.reason }}
-                                </span>
-                            </td>
-                            <td class="align-middle">
-                                {% if appointment.status == 'pending' %}
-                                <span class="badge bg-warning text-dark">Waiting / Pending</span>
-                                {% elif appointment.status == 'completed' %}
-                                <span class="badge bg-success">Completed</span>
-                                {% elif appointment.status == 'cancelled' %}
-                                <span class="badge bg-danger">Cancelled</span>
-                                {% else %}
-                                <span class="badge bg-secondary">{{ appointment.get_status_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="pe-4 align-middle">
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" title="View Patient History">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-outline-success" title="Mark as Completed">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
-                                No appointments scheduled yet.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <!-- Breadcrumbs -->
+    <div class="doctor-breadcrumbs px-4 py-2 border-bottom shadow-sm"
+        style="background-color: #79aec8; color: white; font-size: 0.85rem;">
+        Home › Dashboard › My Appointments
+    </div>
+
+    <div class="container-fluid mt-4">
+        <div class="row px-3">
+            <!-- Main Content Area -->
+            <div class="col-md-12 text-dark">
+                <!-- Appointments Section -->
+                <div id="appointments-sec" class="doctor-dashboard-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-muted" style="font-size: 1.1rem;">My Assigned Appointments (View Only)</h5>
+                        <div class="badge bg-info p-2" style="font-size: 0.8rem;">RECORDS AS OF TODAY</div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 rounded-0 overflow-hidden">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                    <thead style="background-color: #f8f8f8; color: #666; border-bottom: 2px solid #ddd;">
+                                        <tr>
+                                            <th class="ps-3 py-2 text-uppercase">Token</th>
+                                            <th class="py-2 text-uppercase">Patient Name</th>
+                                            <th class="py-2 text-uppercase">Contact Details</th>
+                                            <th class="py-2 text-uppercase">Date & Time</th>
+                                            <th class="py-2 text-uppercase">Disease / Description</th>
+                                            <th class="py-2 pe-3 text-uppercase text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for appt in appointments %}
+                                        <tr style="border-bottom: 1px solid #eee;">
+                                            <td class="ps-3 py-3 fw-bold text-primary">#{{ appt.token_number }}</td>
+                                            <td class="py-3 fw-bold text-dark">{{ appt.patient_name }}</td>
+                                            <td class="py-3">
+                                                <div><i class="bi bi-envelope small me-1"></i> {{ appt.patient_email }}</div>
+                                                <div class="text-muted"><i class="bi bi-telephone small me-1"></i> {{ appt.patient_phone }}</div>
+                                            </td>
+                                            <td class="py-3">
+                                                <div class="fw-bold">{{ appt.appointment_date }}</div>
+                                                <div class="text-muted">{{ appt.appointment_time }}</div>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="text-muted" style="max-width: 250px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ appt.reason }}">
+                                                    {{ appt.reason }}
+                                                </span>
+                                            </td>
+                                            <td class="pe-3 text-center py-3">
+                                                <span class="badge {% if appt.status == 'pending' %}bg-warning text-dark{% elif appt.status == 'completed' %}bg-success{% elif appt.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}"
+                                                    style="font-size: 0.75rem; font-weight: 500; border-radius: 4px; padding: 4px 10px; min-width: 80px;">
+                                                    {{ appt.status|upper }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-muted">
+                                                <i class="bi bi-calendar-x display-4 d-block mb-3 opacity-25"></i>
+                                                NO APPOINTMENTS FOUND IN YOUR SCHEDULE.
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="p-2 px-3 border-top bg-light small fw-bold text-muted d-flex justify-content-between align-items-center">
+                                <span>TOTAL: {{ appointments|length }} appointments found</span>
+                                <span class="text-muted small italic">Logged in as: {{ doctor.name }} ({{ doctor.specialization }})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .card {
-        border-radius: 12px;
+    .doctor-wrapper {
+        font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
     }
 
-    .table thead th {
-        font-weight: 600;
+    .table-hover tbody tr:hover {
+        background-color: #ffffee !important;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+    
+    .badge {
         text-transform: uppercase;
-        font-size: 0.75rem;
         letter-spacing: 0.5px;
     }
 
-    .badge {
-        border-radius: 6px;
-        font-weight: 500;
+    .doctor-header {
+        border-bottom: 2px solid #30617a;
     }
 </style>
-{% endblock %}
+{% endblock %}

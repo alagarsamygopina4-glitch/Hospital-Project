@@ -87,6 +87,19 @@ def patient_logout(request):
         del request.session['patient_id']
     if 'patient_username' in request.session:
         del request.session['patient_username']
+    
+    # Generic logout for any other session variables
+    request.session.flush()
+    return redirect('home')
+
+# Doctor Logout
+def doctor_logout(request):
+    if 'doctor_id' in request.session:
+        del request.session['doctor_id']
+    if 'doctor_username' in request.session:
+        del request.session['doctor_username']
+    
+    request.session.flush()
     return redirect('home')
 
 # Patient Dashboard
