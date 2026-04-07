@@ -204,21 +204,22 @@ def setup_database(request):
     output.append(f"✅ {len(deps)} Departments created/verified")
 
     doctors_data = [
-        ("Dr. John Smith", "johnsmith", "Cardiology", "Cardiologist"),
-        ("Dr. Sarah Wilson", "sarahwilson", "Pediatrics", "Pediatrician"),
-        ("Dr. Michael Brown", "michaelbrown", "Neurology", "Neurologist"),
-        ("Dr. Emily Davis", "emilydavis", "Orthopedics", "Orthopedic Surgeon"),
-        ("Dr. Robert Lee", "robertlee", "Dermatology", "Dermatologist"),
-        ("Dr. Alice Johnson", "alicejohnson", "General Medicine", "General Physician"),
+        ("Surya Doctor", "Doctor", "General Medicine", "General Physician", "doctor@123"),
+        ("Dr. John Smith", "johnsmith", "Cardiology", "Cardiologist", "password123"),
+        ("Dr. Sarah Wilson", "sarahwilson", "Pediatrics", "Pediatrician", "password123"),
+        ("Dr. Michael Brown", "michaelbrown", "Neurology", "Neurologist", "password123"),
+        ("Dr. Emily Davis", "emilydavis", "Orthopedics", "Orthopedic Surgeon", "password123"),
+        ("Dr. Robert Lee", "robertlee", "Dermatology", "Dermatologist", "password123"),
+        ("Dr. Alice Johnson", "alicejohnson", "General Medicine", "General Physician", "password123"),
     ]
 
-    for name, user, dep_name, spec in doctors_data:
+    for name, user, dep_name, spec, pwd in doctors_data:
         dep = Department.objects.get(name=dep_name)
-        Doctor.objects.get_or_create(
+        Doctor.objects.update_or_create(
             username=user,
             defaults={
                 'name': name,
-                'password': 'password123',
+                'password': pwd,
                 'specialization': spec,
                 'department': dep,
                 'available_days': "Monday, Wednesday, Friday",
