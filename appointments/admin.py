@@ -20,6 +20,9 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_filter = ['status', 'appointment_date', 'doctor']
     search_fields = ['patient_name', 'patient_email', 'doctor__name', 'token_number']
     readonly_fields = ['token_number', 'created_at']
+
+    class Media:
+        js = ('appointments/js/admin_status_confirm.js',)
     
     fieldsets = (
         ('Token & Status', {
